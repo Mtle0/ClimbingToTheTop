@@ -46,10 +46,12 @@ namespace StarterAssets
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
         private int _animIDSpeed, _animIDGrounded, _animIDJump, _animIDFreeFall, _animIDMotionSpeed;
-        private bool _isClimbing;
+        private int _animeIDClimbingLadder, _animeIDClimbingEdge;
 
         [SerializeField] private GameObject _centerOfPlayer;
+        public Transform CenterOfPlayer { get { return _centerOfPlayer.transform; } }
 
+        private bool _isClimbing;
         public bool IsClimbing
         {
             get { return _isClimbing; }
@@ -68,8 +70,17 @@ namespace StarterAssets
             }
         }
 
-        public Transform CenterOfPlayer{get {return _centerOfPlayer.transform;}}
-            
+        private IClimbable _currentClimbable;
+        public IClimbable CurrentClimbable
+        {
+            get { return _currentClimbable; }
+            set
+            {
+                _currentClimbable = value;
+            }
+        }
+
+        ProceduralHandPlacement _proceduralHandPlacement;
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -101,6 +112,7 @@ namespace StarterAssets
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
+            _proceduralHandPlacement = GetComponent<ProceduralHandPlacement>();
 #else
             Debug.LogError("Missing dependencies. Please reinstall.");
 #endif
@@ -112,17 +124,12 @@ namespace StarterAssets
         private void Update()
         {
             _hasAnimator = TryGetComponent(out _animator);
-
-            if (_isClimbing)
-            {
-                ClimbingMovement(); 
-            }
-            else
+            if (!IsClimbing)
             {
                 JumpAndGravity();
                 GroundedCheck();
-                Move();
             }
+            Move();
         }
 
         private void LateUpdate() => CameraRotation();
@@ -134,6 +141,8 @@ namespace StarterAssets
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animeIDClimbingLadder = Animator.StringToHash("Speed");
+            _animeIDClimbingEdge = Animator.StringToHash("Speed");
         }
 
         private void GroundedCheck()
@@ -163,6 +172,44 @@ namespace StarterAssets
         }
 
         private void Move()
+        {
+            if (IsClimbing)
+            {
+                ClimbingMovement();
+            }
+            else
+            {
+                RegularMove();
+            }
+        }
+
+        private void ClimbLadder()
+        {
+            float verticalSpeed = _input.move.y * MoveSpeed; 
+            Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
+
+            _controller.Move(moveDirection * Time.deltaTime);
+
+            if (_hasAnimator)
+            {
+                _animator.SetFloat(_animeIDClimbingLadder, Mathf.Abs(verticalSpeed)); 
+            }
+        }
+
+        private void MoveOnEdge()
+        {
+            float horizontalSpeed = _input.move.x * MoveSpeed; 
+            Vector3 moveDirection = new Vector3(horizontalSpeed, 0.0f, 0.0f);
+
+            _controller.Move(moveDirection * Time.deltaTime);
+
+            if (_hasAnimator)
+            {
+                _animator.SetFloat(_animeIDClimbingEdge, Mathf.Abs(horizontalSpeed));
+            }
+        }
+
+        private void RegularMove()
         {
             float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
@@ -256,12 +303,23 @@ namespace StarterAssets
 
         private void ClimbingMovement()
         {
-            //faire une liste de Iclimbable et faire un fonction appropier pour 
-        }
+            if (CurrentClimbable != null)
+            {
+                _proceduralHandPlacement.PlaceHandsOnClimbable(CurrentClimbable);
 
-        private void ClimbingOnLadder()
-        {
-            //test avec un raycast au niveau des épaule pour savoir si on est encore sur l'échelle et finir l'escalade avec une animation 
+                if (CurrentClimbable is Ladder)
+                {
+                    ClimbLadder();
+                }
+                else if (CurrentClimbable is Edge)
+                {
+                    MoveOnEdge();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("No climbable object detected.");
+            }
         }
 
         private static float ClampAngle(float angle, float min, float max)

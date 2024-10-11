@@ -26,5 +26,11 @@ public class Ladder : MonoBehaviour, IClimbable
     public void OnClimb()
     {
         ClimbingManager.Instance.GetThirdPersonController().IsClimbing = true;
+        ClimbingManager.Instance.GetThirdPersonController().CurrentClimbable = this;
+    }
+
+    public void EndClimb()
+    {
+
     }
 }
