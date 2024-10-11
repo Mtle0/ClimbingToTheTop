@@ -7288,8 +7288,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3893294198397673842}
   - component: {fileID: 6982812146692848392}
-  - component: {fileID: 6982812146692848394}
   - component: {fileID: 6982812146692848393}
+  - component: {fileID: 6982812146692848394}
   - component: {fileID: 4416926082442558402}
   - component: {fileID: 4416926082442558403}
   - component: {fileID: 5885216828428292408}
@@ -13088,11 +13088,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4416926082442558408}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bdf1e8d4d4e6c004895e36a50ebd10f8, type: 3}
+  m_Script: {fileID: 11500000, guid: f17bee39b357564409a8b3a0d73961ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftHand: {fileID: 9186500495638848634}
-  rightHand: {fileID: 8626512281751541162}
 --- !u!4 &6983258931535266769
 Transform:
   m_ObjectHideFlags: 0
@@ -16039,7 +16037,7 @@ Transform:
   m_GameObject: {fileID: 8944336655308056917}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.43229038, y: 1.3750002, z: -14.4260845}
+  m_LocalPosition: {x: 0.43229038, y: 1.375, z: -14.426083}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
