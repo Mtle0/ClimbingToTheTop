@@ -3,31 +3,29 @@ using UnityEngine;
 
 public class ClimbingDetection : MonoBehaviour
 {
-    [SerializeField][Range(.5f, 2)] private float gripDistance;
-    private float detectionAngle = 90;
+    [SerializeField][Range(.5f, 2)] private float gripDistance = 1.0f;
+    private float detectionAngle = 90f;
 
     void Update()
     {
-        if(!ClimbingManager.Instance.GetThirdPersonController().IsClimbing)
+        if (!GameManager.Instance.ClimbingManager.IsClimbing)
         {
-            FrontClimbingTest();
+            DetectClimbableInFront(); 
         }
-        
     }
 
-    //ClimbingTest for climbable in front of player (think I will add more fonction for jump climbing and jump behind)
-    void FrontClimbingTest()
+    void DetectClimbableInFront()
     {
-        Transform centerOfPlayer = ClimbingManager.Instance.GetThirdPersonController().CenterOfPlayer;
+        Transform centerOfPlayer = GameManager.Instance.ClimbingManager.CenterOfPlayer;
         Collider[] hitColliders = Physics.OverlapSphere(centerOfPlayer.position, gripDistance);
 
         foreach (var hitCollider in hitColliders)
         {
             if (hitCollider.CompareTag("Climbable"))
             {
-                // Project direction vector on Y plan for ignor the height difference
                 Vector3 directionToTarget = (hitCollider.transform.position - centerOfPlayer.position).normalized;
                 directionToTarget = Vector3.ProjectOnPlane(directionToTarget, Vector3.up);
+
                 float dotProduct = Vector3.Dot(centerOfPlayer.forward, directionToTarget);
 
                 if (dotProduct > Mathf.Cos(detectionAngle * Mathf.Deg2Rad))
@@ -35,7 +33,7 @@ public class ClimbingDetection : MonoBehaviour
                     IClimbable climbable = hitCollider.GetComponent<IClimbable>();
                     if (climbable != null)
                     {
-                        climbable.ClimbingCondition();
+                        GameManager.Instance.ClimbingManager.StartClimbing(climbable);
                     }
                 }
             }
@@ -47,15 +45,14 @@ public class ClimbingDetection : MonoBehaviour
     {
         if (Application.isPlaying)
         {
-            ThirdPersonController controller = ClimbingManager.Instance.GetThirdPersonController();
-
+            ClimbingManager controller = GameManager.Instance.ClimbingManager;
             if (controller != null)
             {
                 Transform centerOfPlayer = controller.CenterOfPlayer;
                 Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(centerOfPlayer.position, gripDistance);
+                Gizmos.DrawWireSphere(centerOfPlayer.position, gripDistance); 
             }
         }
     }
-}
 #endif
+}

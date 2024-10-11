@@ -80,8 +80,6 @@ namespace StarterAssets
             }
         }
 
-        ProceduralHandPlacement _proceduralHandPlacement;
-
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
 #endif
@@ -112,7 +110,6 @@ namespace StarterAssets
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
-            _proceduralHandPlacement = GetComponent<ProceduralHandPlacement>();
 #else
             Debug.LogError("Missing dependencies. Please reinstall.");
 #endif
@@ -305,7 +302,6 @@ namespace StarterAssets
         {
             if (CurrentClimbable != null)
             {
-                _proceduralHandPlacement.PlaceHandsOnClimbable(CurrentClimbable);
 
                 if (CurrentClimbable is Ladder)
                 {

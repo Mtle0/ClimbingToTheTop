@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Windows;
 
 public class Ladder : MonoBehaviour, IClimbable
 {
@@ -16,17 +17,20 @@ public class Ladder : MonoBehaviour, IClimbable
             IClimbable climbable = hit.collider.GetComponent<IClimbable>();
             if (climbable != null)
             {
-                climbable.OnClimb();
+                ClimbingManager.Instance.GetThirdPersonController().IsClimbing = true;
+                ClimbingManager.Instance.GetThirdPersonController().CurrentClimbable = this;
             }
         }
 
         Debug.DrawRay(centerOfPlayer.position, direction * climbDistance, Color.red);
     }
 
-    public void OnClimb()
+    public void OnClimb(Vector2 _input)
     {
-        ClimbingManager.Instance.GetThirdPersonController().IsClimbing = true;
-        ClimbingManager.Instance.GetThirdPersonController().CurrentClimbable = this;
+        float verticalSpeed = _input.y * MoveSpeed;
+        Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
+
+        ClimbingManager.Instance.GetThirdPersonController().MoveCharacter(moveDirection);
     }
 
     public void EndClimb()

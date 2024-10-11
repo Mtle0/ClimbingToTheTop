@@ -3,59 +3,44 @@ using UnityEngine;
 
 public class ClimbingManager : MonoBehaviour
 {
-    static private ClimbingManager instance;
-    static public ClimbingManager Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                GameObject obj = new GameObject(nameof(ClimbingManager));
-                obj.AddComponent<ClimbingManager>();
-            }
-
-            return instance;
-        }
-    }
+    public bool IsClimbing { get; set; }
+    public IClimbable currentClimbable;
+    public HandPlacementManager handPlacementManager;
+    public PlayerCameraController playerCameraController;
+    public PlayerMovement playerMovement;
+    public Transform CenterOfPlayer { get;}
 
     private void Awake()
     {
-        if (instance == null)
+        handPlacementManager = GetComponent<HandPlacementManager>();
+        playerCameraController = GetComponent<PlayerCameraController>();
+        playerMovement = GetComponent<PlayerMovement>();
+
+        if (handPlacementManager == null || playerCameraController == null || playerMovement == null)
         {
-            instance = this;
-            transform.parent = null;
-            DontDestroyOnLoad(instance.gameObject);
-        }
-        else
-        {
-            Destroy(instance);
-            return;
+            Debug.LogError("ClimbingManager: Missing dependencies!");
         }
     }
 
-    public ThirdPersonController GetThirdPersonController()
+    public void StartClimbing(IClimbable climbable)
     {
+        currentClimbable = climbable;
 
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        IsClimbing = true;
+        handPlacementManager.StartPlaceHands(climbable);
+    }
 
-        if (player != null)
-        {
-            ThirdPersonController controller = player.GetComponent<ThirdPersonController>();
+    public void ClimbingMovement()
+    {
+        currentClimbable.OnClimb(playerMovement.Input.move);
+    }
 
-            if (controller != null)
-            {
-                return controller;
-            }
-            else
-            {
-                Debug.LogWarning("ThirdPersonController non trouvé sur l'objet avec le tag 'Player' !");
-                return null;
-            }
-        }
-        else
-        {
-            Debug.LogWarning("Objet avec le tag 'Player' non trouvé !");
-            return null;
-        }
+    public void StopClimbing()
+    {
+        currentClimbable.EndClimb();
+        handPlacementManager.StopPlaceHands(currentClimbable);
+        IsClimbing = false;
+        currentClimbable = null;
+        
     }
 }
