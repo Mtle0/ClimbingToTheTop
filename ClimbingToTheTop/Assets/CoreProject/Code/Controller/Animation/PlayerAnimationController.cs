@@ -2,17 +2,35 @@ using UnityEngine;
 
 public class PlayerAnimationController : MonoBehaviour
 {
-    private Animator _animator;
+    private Animator animator;
+    public Animator Animator {  get { return animator; } }
     private PlayerMovement _movement;
+    private bool hasAnimator;
+    public bool HasAnimator { get { return hasAnimator; } }
+    private float animationBlend;
+    public float AnimationBlend { get { return animationBlend; } set { animationBlend = value; } }
+    [HideInInspector]public int animIDSpeed, animIDGrounded, animIDJump, animIDFreeFall, animIDMotionSpeed;
+    [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingEdge;
 
     void Start()
     {
-        _animator = GetComponent<Animator>();
-        _movement = GetComponent<PlayerMovement>();
+        hasAnimator = TryGetComponent(out animator);
+        AssignAnimationIDs();
     }
 
-    public void UpdateAnimations()
+    private void AssignAnimationIDs()
     {
-        // Logique pour mettre à jour les animations en fonction des mouvements du joueur
+        animIDSpeed = Animator.StringToHash("Speed");
+        animIDGrounded = Animator.StringToHash("Grounded");
+        animIDJump = Animator.StringToHash("Jump");
+        animIDFreeFall = Animator.StringToHash("FreeFall");
+        animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+        animeIDClimbingLadder = Animator.StringToHash("Speed");
+        animeIDClimbingEdge = Animator.StringToHash("Speed");
+    }
+
+    public void Update()
+    {
+        hasAnimator = TryGetComponent(out animator);
     }
 }

@@ -7148,38 +7148,6 @@ CharacterController:
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.93, z: 0}
---- !u!114 &4416926082442558403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4416926082442558408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MoveSpeed: 2
-  SprintSpeed: 5.335
-  RotationSmoothTime: 0.12
-  SpeedChangeRate: 10
-  JumpHeight: 1.2
-  Gravity: -15
-  JumpTimeout: 0.3
-  FallTimeout: 0.15
-  Grounded: 1
-  GroundedOffset: -0.14
-  GroundedRadius: 0.28
-  GroundLayers:
-    serializedVersion: 2
-    m_Bits: 1
-  CinemachineCameraTarget: {fileID: 8338988566764880531}
-  TopClamp: 70
-  BottomClamp: -30
-  CameraAngleOverride: 0
-  LockCameraPosition: 0
-  _centerOfPlayer: {fileID: 4251274685661329845}
 --- !u!114 &4416926082442558404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7207,7 +7175,7 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4416926082442558403}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputMove
         m_Mode: 0
@@ -7223,7 +7191,7 @@ MonoBehaviour:
     m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow,/XInputControllerWindows/leftStick]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4416926082442558403}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputLook
         m_Mode: 0
@@ -7239,7 +7207,7 @@ MonoBehaviour:
     m_ActionName: 'Player/Look[/Mouse/delta,/XInputControllerWindows/rightStick]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4416926082442558403}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputJump
         m_Mode: 0
@@ -7255,7 +7223,7 @@ MonoBehaviour:
     m_ActionName: 'Player/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4416926082442558403}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: InputSprint
         m_Mode: 0
@@ -7288,10 +7256,13 @@ GameObject:
   m_Component:
   - component: {fileID: 3893294198397673842}
   - component: {fileID: 6982812146692848392}
+  - component: {fileID: 6982812146692848398}
   - component: {fileID: 6982812146692848393}
   - component: {fileID: 6982812146692848394}
+  - component: {fileID: 6982812146692848397}
+  - component: {fileID: 6982812146692848396}
+  - component: {fileID: 6982812146692848395}
   - component: {fileID: 4416926082442558402}
-  - component: {fileID: 4416926082442558403}
   - component: {fileID: 5885216828428292408}
   - component: {fileID: 135756642522474420}
   - component: {fileID: 4416926082442558404}
@@ -13089,6 +13060,84 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f17bee39b357564409a8b3a0d73961ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOfPlayer: {fileID: 7898439672188431299}
+  handPlacementManager: {fileID: 0}
+  playerCameraController: {fileID: 0}
+  playerMovement: {fileID: 0}
+--- !u!114 &6982812146692848395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926082442558408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b5ff067358ffc14e945388f3c318ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CinemachineCameraTarget: {fileID: 8338988566764880531}
+  TopClamp: 70
+  BottomClamp: -30
+  CameraAngleOverride: 0
+  LockCameraPosition: 0
+--- !u!114 &6982812146692848396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926082442558408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69a4682142faab947bc1bc5e6ef8b5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
+  sprintSpeed: 5.335
+  rotationSmoothTime: 0.12
+  speedChangeRate: 10
+  jumpHeight: 1.2
+  gravity: -15
+  jumpTimeout: 0.5
+  fallTimeout: 0.15
+  Grounded: 1
+  GroundedOffset: -0.14
+  GroundedRadius: 0.28
+  GroundLayers:
+    serializedVersion: 2
+    m_Bits: 1
+--- !u!114 &6982812146692848397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926082442558408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4a7196dad2af34aafa3fc1d4ced8cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animIDSpeed: 0
+  animIDGrounded: 0
+  animIDJump: 0
+  animIDFreeFall: 0
+  animIDMotionSpeed: 0
+  animeIDClimbingLadder: 0
+  animeIDClimbingEdge: 0
+--- !u!114 &6982812146692848398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926082442558408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdf1e8d4d4e6c004895e36a50ebd10f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &6983258931535266769

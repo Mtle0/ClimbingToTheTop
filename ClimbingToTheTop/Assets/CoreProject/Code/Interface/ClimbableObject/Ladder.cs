@@ -4,10 +4,12 @@ using UnityEngine.Windows;
 public class Ladder : MonoBehaviour, IClimbable
 {
     private float climbDistance = 0.55f;
+    private float moveSpeed = 2f;
 
     public void ClimbingCondition()
     {
-        Transform centerOfPlayer = ClimbingManager.Instance.GetThirdPersonController().CenterOfPlayer;
+        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
+        Transform centerOfPlayer = climbingManager.centerOfPlayer;
 
         RaycastHit hit;
         Vector3 direction = centerOfPlayer.forward;
@@ -17,8 +19,8 @@ public class Ladder : MonoBehaviour, IClimbable
             IClimbable climbable = hit.collider.GetComponent<IClimbable>();
             if (climbable != null)
             {
-                ClimbingManager.Instance.GetThirdPersonController().IsClimbing = true;
-                ClimbingManager.Instance.GetThirdPersonController().CurrentClimbable = this;
+                climbingManager.IsClimbing = true;
+                climbingManager.currentClimbable = this;
             }
         }
 
@@ -27,10 +29,10 @@ public class Ladder : MonoBehaviour, IClimbable
 
     public void OnClimb(Vector2 _input)
     {
-        float verticalSpeed = _input.y * MoveSpeed;
+        float verticalSpeed = _input.y * moveSpeed;
         Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
 
-        ClimbingManager.Instance.GetThirdPersonController().MoveCharacter(moveDirection);
+        GameManager.Instance.ClimbingManager.playerMovement.Move(moveDirection);
     }
 
     public void EndClimb()

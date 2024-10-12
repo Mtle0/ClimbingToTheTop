@@ -6,17 +6,23 @@ public class ClimbingDetection : MonoBehaviour
     [SerializeField][Range(.5f, 2)] private float gripDistance = 1.0f;
     private float detectionAngle = 90f;
 
+    ClimbingManager climbingManager;
+    private void Awake()
+    {
+        climbingManager = GetComponent<ClimbingManager>();
+    }
+
     void Update()
     {
-        if (!GameManager.Instance.ClimbingManager.IsClimbing)
+        if (!climbingManager.IsClimbing)
         {
-            DetectClimbableInFront(); 
+            DetectClimbableInFront();
         }
     }
 
     void DetectClimbableInFront()
     {
-        Transform centerOfPlayer = GameManager.Instance.ClimbingManager.CenterOfPlayer;
+        Transform centerOfPlayer = climbingManager.centerOfPlayer;
         Collider[] hitColliders = Physics.OverlapSphere(centerOfPlayer.position, gripDistance);
 
         foreach (var hitCollider in hitColliders)
@@ -33,7 +39,7 @@ public class ClimbingDetection : MonoBehaviour
                     IClimbable climbable = hitCollider.GetComponent<IClimbable>();
                     if (climbable != null)
                     {
-                        GameManager.Instance.ClimbingManager.StartClimbing(climbable);
+                        climbingManager.StartClimbing(climbable);
                     }
                 }
             }
@@ -45,13 +51,9 @@ public class ClimbingDetection : MonoBehaviour
     {
         if (Application.isPlaying)
         {
-            ClimbingManager controller = GameManager.Instance.ClimbingManager;
-            if (controller != null)
-            {
-                Transform centerOfPlayer = controller.CenterOfPlayer;
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(centerOfPlayer.position, gripDistance); 
-            }
+            Transform centerOfPlayer = climbingManager.centerOfPlayer;
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(centerOfPlayer.position, gripDistance);
         }
     }
 #endif

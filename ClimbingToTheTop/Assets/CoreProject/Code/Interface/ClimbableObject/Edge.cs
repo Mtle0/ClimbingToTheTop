@@ -8,10 +8,11 @@ public class Edge : MonoBehaviour, IClimbable
 
     public void ClimbingCondition()
     {
-        if (!ClimbingManager.Instance.GetThirdPersonController().Grounded)
+        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
+        if (!climbingManager.playerMovement.Grounded)
         {
-            ClimbingManager.Instance.GetThirdPersonController().IsClimbing = true;
-            ClimbingManager.Instance.GetThirdPersonController().CurrentClimbable = this;
+            climbingManager.IsClimbing = true;
+            climbingManager.currentClimbable = this;
         }
     }
 
@@ -20,7 +21,7 @@ public class Edge : MonoBehaviour, IClimbable
         float horizontalSpeed = _input.x * moveSpeed;
         Vector3 moveDirection = new Vector3(horizontalSpeed, 0.0f, 0.0f);
 
-        GameManager.Instance.ClimbingManager.thirdPersonController.MoveCharacter(moveDirection);
+        GameManager.Instance.ClimbingManager.playerMovement.Move(moveDirection);
     }
 
     public void EndClimb()

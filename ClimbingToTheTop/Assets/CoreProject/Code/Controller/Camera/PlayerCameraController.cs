@@ -19,8 +19,7 @@ public class PlayerCameraController : MonoBehaviour
     public GameObject MainCamera { get { return mainCamera; } }
     private float targetRotation;
     public float TargetRotation { get { return targetRotation; } set { targetRotation = value; } }
-    private float verticalVelocity;
-    public float VecticalVelocity { get { return verticalVelocity; } set { verticalVelocity = value; } }
+   
 
 
     private PlayerInput playerInput;

@@ -5,18 +5,21 @@ public class ClimbingManager : MonoBehaviour
 {
     public bool IsClimbing { get; set; }
     public IClimbable currentClimbable;
-    public HandPlacementManager handPlacementManager;
-    public PlayerCameraController playerCameraController;
-    public PlayerMovement playerMovement;
-    public Transform CenterOfPlayer { get;}
+    public Transform centerOfPlayer;
+    [HideInInspector] public HandPlacementManager handPlacementManager;
+    [HideInInspector] public PlayerCameraController playerCameraController;
+    [HideInInspector] public PlayerMovement playerMovement;
+    [HideInInspector] public PlayerAnimationController playerAnimationController;
+    
 
     private void Awake()
     {
         handPlacementManager = GetComponent<HandPlacementManager>();
         playerCameraController = GetComponent<PlayerCameraController>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerAnimationController = GetComponent<PlayerAnimationController>();
 
-        if (handPlacementManager == null || playerCameraController == null || playerMovement == null)
+        if (handPlacementManager == null || playerCameraController == null || playerMovement == null || playerAnimationController == null)
         {
             Debug.LogError("ClimbingManager: Missing dependencies!");
         }
@@ -25,7 +28,6 @@ public class ClimbingManager : MonoBehaviour
     public void StartClimbing(IClimbable climbable)
     {
         currentClimbable = climbable;
-
         IsClimbing = true;
         handPlacementManager.StartPlaceHands(climbable);
     }

@@ -1,54 +1,73 @@
 using StarterAssets;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+using UnityEngine.Windows;
 
 public class PlayerMovement : MonoBehaviour
 {
     private CharacterController controller;
     private StarterAssetsInputs input;
-    private PlayerCameraController cameraController;
-    private bool isClimbing;
+    private ClimbingManager climbingManager;
     private float speed;
     private float rotationVelocity;
-    
+    private float jumpTimeoutDelta;
+    private float fallTimeoutDelta;
+    private float verticalVelocity;
+    private float terminalVelocity = 53.0f;
 
     public StarterAssetsInputs Input { get { return input; } }
 
     [Header("Player Settings")]
-    public float MoveSpeed = 2.0f;
-    public float SprintSpeed = 5.335f;
-    public float RotationSmoothTime = 0.12f;
-    public float SpeedChangeRate = 10.0f;
-    public float JumpHeight = 1.2f;
-    public float Gravity = -15.0f;
-    public float JumpTimeout = 0.50f;
-    public float FallTimeout = 0.15f;
+    public float moveSpeed = 2.0f;
+    public float sprintSpeed = 5.335f;
+    public float rotationSmoothTime = 0.12f;
+    public float speedChangeRate = 10.0f;
+    public float jumpHeight = 1.2f;
+    public float gravity = -15.0f;
+    public float jumpTimeout = 0.50f;
+    public float fallTimeout = 0.15f;
 
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float sprintSpeed = 15f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [Header("Grounded Settings")]
+    public bool Grounded = true;
+    public float GroundedOffset = -0.14f;
+    public float GroundedRadius = 0.28f;
+    public LayerMask GroundLayers;
 
-    void Start()
+    public void Awake()
     {
         controller = GetComponent<CharacterController>();
         input = GetComponent<StarterAssetsInputs>();
-        cameraController = GetComponent<PlayerCameraController>();
+        climbingManager = GetComponent<ClimbingManager>();
     }
 
-    public void Move()
+    public void Start()
     {
-        if (isClimbing)
+        jumpTimeoutDelta = jumpTimeout;
+        fallTimeoutDelta = fallTimeout;
+    }
+
+    public void Update()
+    {
+        if (climbingManager.IsClimbing)
         {
-            ClimbingMovement();
+            climbingManager.ClimbingMovement();
         }
         else
         {
+            JumpAndGravity();
+            GroundedCheck();
             RegularMove();
         }
     }
 
     private void RegularMove()
     {
+        PlayerAnimationController animationController = climbingManager.playerAnimationController;
+        PlayerCameraController cameraController = climbingManager.playerCameraController;
+
+
         float targetSpeed = input.sprint ? sprintSpeed : moveSpeed;
         if (input.move == Vector2.zero) targetSpeed = 0.0f;
 
@@ -58,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
         {
-            speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+            speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
             speed = Mathf.Round(speed * 1000f) / 1000f;
         }
         else
@@ -66,26 +85,104 @@ public class PlayerMovement : MonoBehaviour
             speed = targetSpeed;
         }
 
-        //_animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
-        //if (_animationBlend < 0.01f) _animationBlend = 0f;
+        animationController.AnimationBlend = Mathf.Lerp(animationController.AnimationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
+        if (animationController.AnimationBlend < 0.01f) animationController.AnimationBlend = 0f;
 
         Vector3 inputDirection = new Vector3(input.move.x, 0.0f, input.move.y).normalized;
 
         if (input.move != Vector2.zero)
         {
             cameraController.TargetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraController.MainCamera.transform.eulerAngles.y;
-            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraController.TargetRotation, ref cameraController.RotationVelocity, RotationSmoothTime);
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraController.TargetRotation, ref rotationVelocity, rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
         }
 
         Vector3 targetDirection = Quaternion.Euler(0.0f, cameraController.TargetRotation, 0.0f) * Vector3.forward;
-        controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0.0f, cameraController.VecticalVelocity, 0.0f) * Time.deltaTime);
+        controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
+
+        if (animationController.HasAnimator)
+        {
+            animationController.Animator.SetFloat(animationController.animIDSpeed, animationController.AnimationBlend);
+            animationController.Animator.SetFloat(animationController.animIDMotionSpeed, inputMagnitude);
+        }
     }
 
-    private void ClimbingMovement()
+    private void GroundedCheck()
     {
-        // Code de déplacement lors de l'escalade
+        PlayerAnimationController animationController = climbingManager.playerAnimationController;
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
+        Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+
+        if (animationController.HasAnimator)
+        {
+            animationController.Animator.SetBool(animationController.animIDGrounded, Grounded);
+        }
     }
 
-    // Méthodes pour gérer la gravité, saut, etc.
+    private void JumpAndGravity()
+    {
+        PlayerAnimationController animationController = climbingManager.playerAnimationController;
+        if (Grounded)
+        {
+            fallTimeoutDelta = fallTimeout;
+            if (animationController.HasAnimator)
+            {
+                animationController.Animator.SetBool(animationController.animIDJump, false);
+                animationController.Animator.SetBool(animationController.animIDFreeFall, false);
+            }
+
+            if (verticalVelocity < 0.0f)
+            {
+                verticalVelocity = -2f;
+            }
+
+            if (input.jump && jumpTimeoutDelta <= 0.0f)
+            {
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                if (animationController.HasAnimator)
+                {
+                    animationController.Animator.SetBool(animationController.animIDJump, true);
+                }
+            }
+
+            if (jumpTimeoutDelta >= 0.0f)
+            {
+                jumpTimeoutDelta -= Time.deltaTime;
+            }
+        }
+        else
+        {
+            jumpTimeoutDelta = jumpTimeout;
+            if (fallTimeoutDelta >= 0.0f)
+            {
+                fallTimeoutDelta -= Time.deltaTime;
+            }
+            else if (animationController.HasAnimator)
+            {
+                animationController.Animator.SetBool(animationController.animIDFreeFall, true);
+            }
+
+            input.jump = false;
+        }
+
+        if (verticalVelocity < terminalVelocity)
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
+    }
+
+    public void Move(Vector2 _moveDirection)
+    {
+        controller.Move(_moveDirection * Time.deltaTime);
+    }
+
+    private void OnFootstep(AnimationEvent animationEvent)
+    {
+
+    }
+
+    private void OnLand(AnimationEvent animationEvent)
+    {
+
+    }
 }
