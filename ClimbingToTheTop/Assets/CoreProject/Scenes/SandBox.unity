@@ -13063,9 +13063,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   centerOfPlayer: {fileID: 7898439672188431299}
+  neckPosition: {fileID: 1280561501876942377}
   handPlacementManager: {fileID: 0}
   playerCameraController: {fileID: 0}
   playerMovement: {fileID: 0}
+  playerAnimationController: {fileID: 0}
 --- !u!114 &6982812146692848395
 MonoBehaviour:
   m_ObjectHideFlags: 0

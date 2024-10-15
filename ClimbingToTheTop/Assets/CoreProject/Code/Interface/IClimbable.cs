@@ -1,8 +1,10 @@
+using StarterAssets;
 using UnityEngine;
 
 public interface IClimbable
 {
-    void ClimbingCondition();
-    void OnClimb(Vector2 _input);
+    void StartClimbingCondition();
+    void OnClimb(Vector2 _inputDirection);
+    bool StopClimbingCondition(StarterAssetsInputs _input);
     void EndClimb();
 }

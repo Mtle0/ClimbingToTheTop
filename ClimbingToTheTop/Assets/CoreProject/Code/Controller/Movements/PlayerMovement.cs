@@ -53,8 +53,12 @@ public class PlayerMovement : MonoBehaviour
         if (climbingManager.IsClimbing)
         {
             climbingManager.ClimbingMovement();
+            if (climbingManager.stopClimbingCondition)
+            {
+                climbingManager.StopClimbing();
+            }
         }
-        else
+        else if (!climbingManager.IsClimbing && !climbingManager.IsFinishClimbing)
         {
             JumpAndGravity();
             GroundedCheck();
@@ -171,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Move(Vector2 _moveDirection)
+    public void Move(Vector3 _moveDirection)
     {
         controller.Move(_moveDirection * Time.deltaTime);
     }

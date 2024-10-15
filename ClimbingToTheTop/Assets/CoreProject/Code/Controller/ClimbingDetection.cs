@@ -39,7 +39,7 @@ public class ClimbingDetection : MonoBehaviour
                     IClimbable climbable = hitCollider.GetComponent<IClimbable>();
                     if (climbable != null)
                     {
-                        climbingManager.StartClimbing(climbable);
+                        climbingManager.StartClimbingTest(climbable);
                     }
                 }
             }
