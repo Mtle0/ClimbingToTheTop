@@ -1,9 +1,5 @@
 using StarterAssets;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.XR;
-using UnityEngine.Windows;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -58,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
                 climbingManager.StopClimbing();
             }
         }
-        else if (!climbingManager.IsClimbing && !climbingManager.IsFinishClimbing)
+        else if (climbingManager.enableBasicMovement)
         {
             JumpAndGravity();
             GroundedCheck();

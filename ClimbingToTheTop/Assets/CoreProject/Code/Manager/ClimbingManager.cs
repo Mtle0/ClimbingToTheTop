@@ -31,6 +31,7 @@ public class ClimbingManager : MonoBehaviour
     public Transform centerOfPlayer;
     public Transform neckPosition;
     [HideInInspector] public bool stopClimbingCondition = false;
+    [HideInInspector] public bool enableBasicMovement = true;
     [HideInInspector] public HandPlacementManager handPlacementManager;
     [HideInInspector] public PlayerCameraController playerCameraController;
     [HideInInspector] public PlayerMovement playerMovement;
@@ -57,7 +58,6 @@ public class ClimbingManager : MonoBehaviour
             currentClimbable = climbable;
             currentClimbable.StartClimbingCondition();
         }
-        
     }
 
     public void ClimbingMovement()

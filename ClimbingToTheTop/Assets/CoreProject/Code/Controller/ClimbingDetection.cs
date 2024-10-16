@@ -14,7 +14,7 @@ public class ClimbingDetection : MonoBehaviour
 
     void Update()
     {
-        if (!climbingManager.IsClimbing)
+        if (!climbingManager.IsClimbing && climbingManager.enableBasicMovement)
         {
             DetectClimbableInFront();
         }

@@ -10,7 +10,7 @@ public class PlayerAnimationController : MonoBehaviour
     private float animationBlend;
     public float AnimationBlend { get { return animationBlend; } set { animationBlend = value; } }
     [HideInInspector]public int animIDSpeed, animIDGrounded, animIDJump, animIDFreeFall, animIDMotionSpeed;
-    [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingEdge;
+    [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingToTopLadder;
 
     void Start()
     {
@@ -25,8 +25,8 @@ public class PlayerAnimationController : MonoBehaviour
         animIDJump = Animator.StringToHash("Jump");
         animIDFreeFall = Animator.StringToHash("FreeFall");
         animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-        animeIDClimbingLadder = Animator.StringToHash("Speed");
-        animeIDClimbingEdge = Animator.StringToHash("Speed");
+        animeIDClimbingLadder = Animator.StringToHash("AttatchLadder");
+        animeIDClimbingToTopLadder = Animator.StringToHash("GoTopOfLadder");
     }
 
     public void Update()
