@@ -12,7 +12,7 @@ public class Ladder : MonoBehaviour, IClimbable
     public void StartClimbingCondition()
     {
         ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
-        if (climbingManager.playerMovement.Grounded)
+        if (climbingManager.playerMovement.Grounded && climbingManager.playerAnimationController)
         {
             Transform centerOfPlayer = climbingManager.centerOfPlayer;
 
@@ -116,7 +116,7 @@ public class Ladder : MonoBehaviour, IClimbable
     {
         ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
         Transform neckOfPlayer = climbingManager.neckPosition;
-        float offsetY = 0.2f;
+        float offsetY = 0.1f;
 
         RaycastHit hit;
         Vector3 direction = neckOfPlayer.forward;
