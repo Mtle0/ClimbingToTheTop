@@ -1,17 +1,21 @@
 using StarterAssets;
 using System.Collections;
-using System.Xml.Serialization;
-using TMPro;
 using UnityEngine;
 
 public class Ladder : MonoBehaviour, IClimbable
 {
     private float climbDistance = 0.55f;
     private float moveSpeed = 2f;
+    public Transform topOFLadder;
+    private ClimbingManager climbingManager;
+
+    public void Start()
+    {
+        climbingManager = GameManager.Instance.ClimbingManager;
+    }
 
     public void StartClimbingCondition()
     {
-        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
         if (climbingManager.playerMovement.Grounded && climbingManager.playerAnimationController)
         {
             Transform centerOfPlayer = climbingManager.centerOfPlayer;
@@ -35,7 +39,6 @@ public class Ladder : MonoBehaviour, IClimbable
 
     private IEnumerator GoFrontToLadderCoroutine()
     {
-        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
         Transform playerTransform = climbingManager.centerOfPlayer;
         Vector3 targetPosition = new Vector3(transform.position.x, playerTransform.position.y, transform.position.z) + transform.forward * 0.5f;
         float replaceSpeed = 0.5f;
@@ -108,61 +111,42 @@ public class Ladder : MonoBehaviour, IClimbable
     {
         float verticalSpeed = _inputDirection.y * moveSpeed;
         Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
+        climbingManager.playerMovement.Move(moveDirection);
 
-        GameManager.Instance.ClimbingManager.playerMovement.Move(moveDirection);
+        climbingManager.playerAnimationController.Animator.SetBool(climbingManager.playerAnimationController.AnimeIDIdleOnLadder, verticalSpeed == 0 ? false : true);
     }
 
     public bool StopClimbingCondition(StarterAssetsInputs _input)
     {
-        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
         Transform neckOfPlayer = climbingManager.neckPosition;
-        float offsetY = 0.1f;
 
-        RaycastHit hit;
-        Vector3 direction = neckOfPlayer.forward;
-        Vector3 startPosition = neckOfPlayer.position + new Vector3(0, offsetY, 0); 
-
-        Debug.DrawRay(startPosition, direction * climbDistance * 2, Color.yellow);
-        if (Physics.Raycast(startPosition, direction, out hit, climbDistance * 2))
+        if (neckOfPlayer.position.y >= topOFLadder.position.y)
         {
-            IClimbable climbable = hit.collider.GetComponent<IClimbable>();
-            if (climbable != null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
         return false;
     }
 
 
     public void EndClimb()
-    {   
-
-        StartCoroutine(GoToTopLadderCoroutine(1.4f));
+    {
+        climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
+        StartCoroutine(GoToTopLadderCoroutine());
     }
 
-    private IEnumerator GoToTopLadderCoroutine(float duration)
+    private IEnumerator GoToTopLadderCoroutine()
     {
-        float elapsedTime = 0f;
-        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
-        climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
+        float forwardOffset = 0.5f;
 
-        while (elapsedTime < duration)
+        while (climbingManager.FootPosition.position.y < topOFLadder.position.y || climbingManager.FootPosition.position.z < topOFLadder.position.z + forwardOffset)
         {
-            if (elapsedTime < 1f)
+            if (climbingManager.FootPosition.position.y < topOFLadder.position.y)
             {
-                climbingManager.playerMovement.Move(Vector3.up * 1f);
+                climbingManager.playerMovement.Move(Vector3.up * 1.5f);
             }
-            climbingManager.playerMovement.Move(Vector3.forward * 2f);
             
-
-            elapsedTime += Time.deltaTime;
-
-            yield return null; 
+            climbingManager.playerMovement.Move(Vector3.forward * 1.5f);
+            yield return null;
         }
 
         climbingManager.IsFinishClimbing = false;
