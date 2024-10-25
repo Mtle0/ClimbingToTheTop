@@ -12,7 +12,7 @@ public class PlayerAnimationController : MonoBehaviour
     //parametter
     [HideInInspector]public int animIDSpeed, animIDGrounded, animIDJump, animIDFreeFall, animIDMotionSpeed;
     [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingToTopLadder, AnimeIDIdleOnLadder;
-    [HideInInspector] public int animeIDClimbingGroundToEdge;
+    [HideInInspector] public int animeIDClimbingGroundToEdge, animeIDClimbingEdgeAxisX;
 
     void Start()
     {
@@ -31,6 +31,7 @@ public class PlayerAnimationController : MonoBehaviour
         animeIDClimbingToTopLadder = Animator.StringToHash("GoTopOfLadder");
         AnimeIDIdleOnLadder = Animator.StringToHash("IsMovingOnLadder");
         animeIDClimbingGroundToEdge = Animator.StringToHash("AttachToEdge");
+        animeIDClimbingEdgeAxisX = Animator.StringToHash("EdgeMovingAxisX");
     }
 
     public void Update()

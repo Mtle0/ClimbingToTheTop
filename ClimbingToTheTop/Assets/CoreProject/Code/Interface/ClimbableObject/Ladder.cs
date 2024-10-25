@@ -63,23 +63,19 @@ public class Ladder : MonoBehaviour, IClimbable
 
     private IEnumerator LookAtLadderCoroutine()
     {
-        ClimbingManager climbingManager = GameManager.Instance.ClimbingManager;
         Transform playerTransform = climbingManager.transform;
-        float targetRotationY = transform.rotation.y;
-        float replaceSpeed = 100f;
+        Vector3 playerTransformForwardStart = playerTransform.forward;
+        Vector3 targetRotation = -transform.forward;
+        float alpha = 0f;
+        bool isLookAtEdge = false;
 
-        bool isLookAtLadder = false;
-
-        while (!isLookAtLadder)
+        while (!isLookAtEdge)
         {
-            Quaternion currentRotation = playerTransform.rotation;
-            Quaternion targetRotation = Quaternion.Euler(0, targetRotationY, 0);
-            playerTransform.rotation = Quaternion.RotateTowards(currentRotation, targetRotation, replaceSpeed * Time.deltaTime);
-
-            if (playerTransform.rotation.y > targetRotation.y - 0.01f && playerTransform.rotation.y < targetRotation.y + 0.01f)
+            playerTransform.forward = Vector3.Lerp(playerTransformForwardStart, targetRotation, alpha);
+            alpha += Time.deltaTime * 2;
+            if (alpha >= 1)
             {
-
-                isLookAtLadder = true;
+                isLookAtEdge = true;
             }
 
             yield return null;

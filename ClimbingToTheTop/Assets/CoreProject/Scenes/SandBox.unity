@@ -219,6 +219,7 @@ Transform:
   - {fileID: 8348473906588770237}
   - {fileID: 4764293198572795913}
   - {fileID: 717916842120711457}
+  - {fileID: 654701961}
   - {fileID: 717916840598408268}
   - {fileID: 4646160275759434632}
   - {fileID: 4441194853519150335}
@@ -254,8 +255,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 56985184}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: -6.0109997, y: 2.354, z: -11.63}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: -5.99, y: 2.354, z: -11.63}
   m_LocalScale: {x: 4.007026, y: 0.11291828, z: 0.06644957}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -827,6 +828,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 607285727}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &654701961 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+  m_PrefabInstance: {fileID: 1743008501}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &695295828
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,6 +1111,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1933329854}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1743008501
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 46584716}
+    m_Modifications:
+    - target: {fileID: 2349534717771988847, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_Name
+      value: Ladder (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489322171826826119, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 75c8e8189355de04fa99ea2f0ee3f2bc, type: 3}
 --- !u!114 &1855330901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7354,13 +7417,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.8
-  m_Radius: 0.28
+  m_Height: 1.74
+  m_Radius: 0.13
   m_SlopeLimit: 45
   m_StepOffset: 0.25
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0.93, z: 0}
+  m_Center: {x: 0, y: 0.93, z: -0.01}
 --- !u!114 &4416926082442558404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13325,6 +13388,9 @@ MonoBehaviour:
   animIDMotionSpeed: 0
   animeIDClimbingLadder: 0
   animeIDClimbingToTopLadder: 0
+  AnimeIDIdleOnLadder: 0
+  animeIDClimbingGroundToEdge: 0
+  animeIDClimbingEdgeAxisX: 0
 --- !u!114 &6982812146692848398
 MonoBehaviour:
   m_ObjectHideFlags: 0

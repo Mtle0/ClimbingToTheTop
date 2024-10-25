@@ -2,16 +2,38 @@ using StarterAssets;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Edge : MonoBehaviour, IClimbable
 {
     private float moveSpeed = 2f;
-
+    float offsetplayerCornerDist = 2f;
     private ClimbingManager climbingManager;
 
-    public void Start()
+    private Vector3 leftPoint;
+    private Vector3 rightPoint;
+
+    void Start()
     {
+        CalculateBounds();
         climbingManager = GameManager.Instance.ClimbingManager;
+    }
+
+    private void CalculateBounds()
+    {
+        Renderer renderer = GetComponent<Renderer>();
+
+        if (renderer != null)
+        {
+            Bounds bounds = renderer.bounds;
+
+            rightPoint = bounds.center - transform.right * bounds.extents.x;
+            leftPoint = bounds.center + transform.right * bounds.extents.x;
+        }
+        else
+        {
+            Debug.LogError("Renderer non trouvé sur l'objet " + gameObject.name);
+        }
     }
 
     public void StartClimbingCondition()
@@ -28,7 +50,9 @@ public class Edge : MonoBehaviour, IClimbable
     private IEnumerator AdjusteToEdgeCoroutine()
     {
         Transform playerTransform = climbingManager.neckPosition;
-        Vector3 targetPosition = new Vector3(playerTransform.position.x, transform.position.y, transform.position.z) + transform.forward * 0.4f;
+        float offsetY = 0.21f;
+        float offsetZ = 0.1f;
+        Vector3 targetPosition = new Vector3(playerTransform.position.x, transform.position.y + offsetY, transform.position.z + offsetZ) + transform.forward * 0.4f;
         float replaceSpeed = 5f;
 
         bool isAdjusteToEdge = false;
@@ -46,26 +70,22 @@ public class Edge : MonoBehaviour, IClimbable
         }
 
         climbingManager.IsClimbing = true;
-        //climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingLadder);
     }
 
     private IEnumerator LookAtEdgeCoroutine()
     {
         Transform playerTransform = climbingManager.transform;
-        float targetRotationY = transform.rotation.y - 180;
-        float replaceSpeed = 100f;
-
+        Vector3 playerTransformForwardStart = playerTransform.forward;
+        Vector3 targetRotation = -transform.forward;
+        float alpha = 0f;
         bool isLookAtEdge = false;
 
         while (!isLookAtEdge)
         {
-            Quaternion currentRotation = playerTransform.rotation;
-            Quaternion targetRotation = Quaternion.Euler(0, targetRotationY, 0);
-            playerTransform.rotation = Quaternion.RotateTowards(currentRotation, targetRotation, replaceSpeed * Time.deltaTime);
-
-            if (playerTransform.rotation.y > targetRotation.y - 0.01f && playerTransform.rotation.y < targetRotation.y + 0.01f)
+            playerTransform.forward = Vector3.Lerp(playerTransformForwardStart, targetRotation, alpha);
+            alpha += Time.deltaTime * 2;
+            if (alpha >= 1)
             {
-
                 isLookAtEdge = true;
             }
 
@@ -96,10 +116,25 @@ public class Edge : MonoBehaviour, IClimbable
 
     public void OnClimb(Vector2 _inputDirection)
     {
-        float horizontalSpeed = _inputDirection.x * moveSpeed;
-        Vector3 moveDirection = new Vector3(horizontalSpeed, 0.0f, 0.0f);
+        climbingManager.playerAnimationController.Animator.SetInteger(climbingManager.playerAnimationController.animeIDClimbingEdgeAxisX, (int)_inputDirection.x);
+        if (_inputDirection.x > 0) { MoveRight(); }
+        else if (_inputDirection.x < 0) { MoveLeft(); }
+    }
 
-        climbingManager.playerMovement.Move(moveDirection);
+    private void MoveLeft()
+    {
+        if (climbingManager.transform.position.x > leftPoint.x)
+        {
+            climbingManager.playerMovement.Move(transform.right * moveSpeed);
+        }
+    }
+
+    private void MoveRight()
+    {
+        if (climbingManager.transform.position.x < rightPoint.x)
+        {
+            climbingManager.playerMovement.Move(-transform.right * moveSpeed);
+        }
     }
 
     public bool StopClimbingCondition(StarterAssetsInputs _input)
@@ -110,5 +145,13 @@ public class Edge : MonoBehaviour, IClimbable
     public void EndClimb()
     {
 
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(leftPoint, 0.1f);
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(rightPoint, 0.1f);
     }
 }
