@@ -3,15 +3,19 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class Edge : MonoBehaviour, IClimbable
 {
-    private float moveSpeed = 2f;
-    float offsetplayerCornerDist = 2f;
-    private ClimbingManager climbingManager;
+    public bool availableToAttatch { get; set;} = true;
 
+    private float moveSpeed = 2f;
+    private float offsetplayerCornerDist = 0.35f;
+    private ClimbingManager climbingManager;
+    private bool endOnGoToGround = false;
     private Vector3 leftPoint;
     private Vector3 rightPoint;
+
 
     void Start()
     {
@@ -38,8 +42,9 @@ public class Edge : MonoBehaviour, IClimbable
 
     public void StartClimbingCondition()
     {
-        if (!climbingManager.playerMovement.Grounded)
+        if (!climbingManager.playerMovement.Grounded && availableToAttatch)
         {
+            climbingManager.currentClimbable = this;
             climbingManager.enableBasicMovement = false;
             climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingGroundToEdge);
             StartCoroutine(AdjusteToEdgeCoroutine());
@@ -51,7 +56,7 @@ public class Edge : MonoBehaviour, IClimbable
     {
         Transform playerTransform = climbingManager.neckPosition;
         float offsetY = 0.21f;
-        float offsetZ = 0.1f;
+        float offsetZ = 0.12f;
         Vector3 targetPosition = new Vector3(playerTransform.position.x, transform.position.y + offsetY, transform.position.z + offsetZ) + transform.forward * 0.4f;
         float replaceSpeed = 5f;
 
@@ -69,7 +74,7 @@ public class Edge : MonoBehaviour, IClimbable
             yield return null;
         }
 
-        climbingManager.IsClimbing = true;
+        climbingManager.SetVariableWhenAttatchOnClimbable();
     }
 
     private IEnumerator LookAtEdgeCoroutine()
@@ -117,13 +122,19 @@ public class Edge : MonoBehaviour, IClimbable
     public void OnClimb(Vector2 _inputDirection)
     {
         climbingManager.playerAnimationController.Animator.SetInteger(climbingManager.playerAnimationController.animeIDClimbingEdgeAxisX, (int)_inputDirection.x);
-        if (_inputDirection.x > 0) { MoveRight(); }
-        else if (_inputDirection.x < 0) { MoveLeft(); }
+        if (_inputDirection.x > 0)
+        {
+            MoveRight();
+        }
+        else if (_inputDirection.x < 0)
+        {
+            MoveLeft();
+        }
     }
 
     private void MoveLeft()
     {
-        if (climbingManager.transform.position.x > leftPoint.x)
+        if (climbingManager.transform.position.x > leftPoint.x + offsetplayerCornerDist)
         {
             climbingManager.playerMovement.Move(transform.right * moveSpeed);
         }
@@ -131,7 +142,7 @@ public class Edge : MonoBehaviour, IClimbable
 
     private void MoveRight()
     {
-        if (climbingManager.transform.position.x < rightPoint.x)
+        if (climbingManager.transform.position.x < rightPoint.x - offsetplayerCornerDist)
         {
             climbingManager.playerMovement.Move(-transform.right * moveSpeed);
         }
@@ -139,12 +150,60 @@ public class Edge : MonoBehaviour, IClimbable
 
     public bool StopClimbingCondition(StarterAssetsInputs _input)
     {
-        return false;
+        
+        if (_input.move.y == 1 && Input.GetKeyDown(KeyCode.Space))
+        {
+            endOnGoToGround = false;
+            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDEgdeToTop);
+            return true;
+        }
+        
+        else if (_input.move.y == -1 && Input.GetKeyDown(KeyCode.Space))
+        {
+            endOnGoToGround = true;
+            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDEdgeToGround);
+            return true;
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            endOnGoToGround = false;
+            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDEgdeToTop);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void EndClimb()
     {
+        availableToAttatch = false;
+        if (endOnGoToGround) { StartCoroutine(GoToGroundCoroutine()); } else { StartCoroutine(GoToTopCoroutine()); }
+    }
 
+    private IEnumerator GoToGroundCoroutine()
+    {
+        yield return null;
+        climbingManager.enableBasicMovement = true;
+    }
+
+    private IEnumerator GoToTopCoroutine()
+    {
+        float forwardOffset = 0.2f;
+
+        while ( Math.Abs (climbingManager.FootPosition.position.z  -  (transform.position.z - transform.forward.z * forwardOffset)) > 0.2f)
+        {
+            if (climbingManager.FootPosition.position.y < transform.position.y)
+            {
+                climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+            }
+
+            climbingManager.playerMovement.Move(climbingManager.transform.forward * 0.5f);
+            yield return null;
+        }
+
+        climbingManager.enableBasicMovement = true;
     }
 
     private void OnDrawGizmos()

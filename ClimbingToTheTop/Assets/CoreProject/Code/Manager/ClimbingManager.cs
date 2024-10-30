@@ -1,14 +1,14 @@
-using StarterAssets;
 using UnityEngine;
 
 public class ClimbingManager : MonoBehaviour
 {
+    #region variable
     private bool isClimbing = false;
-    public bool IsClimbing 
-    { 
+    public bool IsClimbing
+    {
         get { return isClimbing; }
-        set 
-        { 
+        set
+        {
             isClimbing = value;
             if (value)
             {
@@ -16,18 +16,17 @@ public class ClimbingManager : MonoBehaviour
             }
         }
     }
-    private bool isFinishClimbing = false;
-    public bool IsFinishClimbing
+
+    public enum PlayerForwardOnClimbable
     {
-        get { return isFinishClimbing; }
-        set
-        {
-            isFinishClimbing = value;
-        }
+        FORWARD,
+        LEFT,
+        RIGHT,
+        BACK
     }
 
-
     public IClimbable currentClimbable;
+    public IClimbable lastClimbable;
     public Transform centerOfPlayer;
     public Transform neckPosition;
     public Transform FootPosition;
@@ -37,7 +36,8 @@ public class ClimbingManager : MonoBehaviour
     [HideInInspector] public PlayerCameraController playerCameraController;
     [HideInInspector] public PlayerMovement playerMovement;
     [HideInInspector] public PlayerAnimationController playerAnimationController;
-    
+    [HideInInspector] public PlayerForwardOnClimbable playerForwardOnClimbable;
+    #endregion
 
     private void Awake()
     {
@@ -52,12 +52,22 @@ public class ClimbingManager : MonoBehaviour
         }
     }
 
+    private void ResetAnimatorVariable()
+    {
+        playerAnimationController.Animator.SetBool(playerAnimationController.animIDFreeFall, false);
+        playerAnimationController.Animator.SetBool(playerAnimationController.animIDJump, false);
+    }
+
     public void StartClimbingTest(IClimbable climbable)
     {
-        if (!isFinishClimbing)
+        if (climbable.availableToAttatch)
         {
-            currentClimbable = climbable;
-            currentClimbable.StartClimbingCondition();
+            ResetAnimatorVariable();
+            climbable.StartClimbingCondition();
+            if (lastClimbable != null)
+            {
+                lastClimbable.availableToAttatch = true;
+            }
         }
     }
 
@@ -76,7 +86,33 @@ public class ClimbingManager : MonoBehaviour
         handPlacementManager.StopPlaceHands(currentClimbable);
         isClimbing = false;
         stopClimbingCondition = false;
-        isFinishClimbing = true;
+        lastClimbable = currentClimbable;
         currentClimbable = null;
+    }
+
+    public void SetVariableWhenAttatchOnClimbable()
+    {
+        isClimbing = true;
+        SetPlayerForwardEnum();
+    }
+
+    public void SetPlayerForwardEnum()
+    {
+        if (transform.forward == new Vector3(1,0,0))
+        {
+            playerForwardOnClimbable = PlayerForwardOnClimbable.RIGHT;
+        }
+        if (transform.forward == new Vector3(-1, 0, 0))
+        {
+            playerForwardOnClimbable = PlayerForwardOnClimbable.LEFT;
+        }
+        if (transform.forward == new Vector3(0, 0, 1))
+        {
+            playerForwardOnClimbable = PlayerForwardOnClimbable.FORWARD;
+        }
+        if (transform.forward == new Vector3(0, 0, -1))
+        {
+            playerForwardOnClimbable = PlayerForwardOnClimbable.BACK;
+        }
     }
 }

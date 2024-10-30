@@ -124,6 +124,11 @@ public class PlayerMovement : MonoBehaviour
         PlayerAnimationController animationController = climbingManager.playerAnimationController;
         if (Grounded)
         {
+            if (climbingManager.lastClimbable != null)
+            {
+                climbingManager.lastClimbable.availableToAttatch = true;
+            }
+
             fallTimeoutDelta = fallTimeout;
             if (animationController.HasAnimator)
             {

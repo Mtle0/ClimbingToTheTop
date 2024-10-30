@@ -1,9 +1,12 @@
 using StarterAssets;
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class Ladder : MonoBehaviour, IClimbable
 {
+    public bool availableToAttatch { get; set; } = true;
+
     private float climbDistance = 0.55f;
     private float moveSpeed = 2f;
     public Transform topOFLadder;
@@ -16,19 +19,18 @@ public class Ladder : MonoBehaviour, IClimbable
 
     public void StartClimbingCondition()
     {
-        if (climbingManager.playerMovement.Grounded && climbingManager.playerAnimationController)
+        if (climbingManager.playerMovement.Grounded)
         {
             Transform centerOfPlayer = climbingManager.centerOfPlayer;
-
             RaycastHit hit;
             Vector3 direction = centerOfPlayer.forward;
 
             Debug.DrawRay(centerOfPlayer.position, direction * climbDistance, Color.red);
             if (Physics.Raycast(centerOfPlayer.position, direction, out hit, climbDistance))
             {
-                IClimbable climbable = hit.collider.GetComponent<IClimbable>();
-                if (climbable != null)
+                if (hit.collider == GetComponent<Collider>())
                 {
+                    climbingManager.currentClimbable = this;
                     climbingManager.enableBasicMovement = false;
                     StartCoroutine(GoFrontToLadderCoroutine());
                     StartCoroutine(LookAtLadderCoroutine());
@@ -56,9 +58,9 @@ public class Ladder : MonoBehaviour, IClimbable
 
             yield return null;
         }
-
-        climbingManager.IsClimbing = true;
         climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingLadder);
+
+        climbingManager.SetVariableWhenAttatchOnClimbable();
     }
 
     private IEnumerator LookAtLadderCoroutine()
@@ -127,6 +129,7 @@ public class Ladder : MonoBehaviour, IClimbable
     public void EndClimb()
     {
         climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
+        availableToAttatch = false;
         StartCoroutine(GoToTopLadderCoroutine());
     }
 
@@ -134,18 +137,21 @@ public class Ladder : MonoBehaviour, IClimbable
     {
         float forwardOffset = 0.5f;
 
-        while (climbingManager.FootPosition.position.y < topOFLadder.position.y || climbingManager.FootPosition.position.z < topOFLadder.position.z + forwardOffset)
+        float forwardXAxix = Math.Abs(climbingManager.FootPosition.position.x - (transform.position.x - transform.forward.x * forwardOffset));
+        float forwardZAxix = Math.Abs(climbingManager.FootPosition.position.z - (transform.position.z - transform.forward.z * forwardOffset));
+
+        Debug.Log(transform.forward);
+
+        while (climbingManager.FootPosition.position.y < topOFLadder.position.y) //|| forwardXAxix > 0.3f || forwardZAxix > 0.3f)
         {
             if (climbingManager.FootPosition.position.y < topOFLadder.position.y)
             {
                 climbingManager.playerMovement.Move(Vector3.up * 1.5f);
             }
             
-            climbingManager.playerMovement.Move(Vector3.forward * 1.5f);
+            climbingManager.playerMovement.Move(climbingManager.transform.forward * 1.5f);
             yield return null;
         }
-
-        climbingManager.IsFinishClimbing = false;
         climbingManager.enableBasicMovement = true;
     }
 }
