@@ -137,12 +137,7 @@ public class Ladder : MonoBehaviour, IClimbable
     {
         float forwardOffset = 0.5f;
 
-        float forwardXAxix = Math.Abs(climbingManager.FootPosition.position.x - (transform.position.x - transform.forward.x * forwardOffset));
-        float forwardZAxix = Math.Abs(climbingManager.FootPosition.position.z - (transform.position.z - transform.forward.z * forwardOffset));
-
-        Debug.Log(transform.forward);
-
-        while (climbingManager.FootPosition.position.y < topOFLadder.position.y) //|| forwardXAxix > 0.3f || forwardZAxix > 0.3f)
+        while (climbingManager.FootPosition.position.y < topOFLadder.position.y)
         {
             if (climbingManager.FootPosition.position.y < topOFLadder.position.y)
             {

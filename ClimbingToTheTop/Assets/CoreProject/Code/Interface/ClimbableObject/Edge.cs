@@ -2,42 +2,22 @@ using StarterAssets;
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
 public class Edge : MonoBehaviour, IClimbable
 {
-    public bool availableToAttatch { get; set;} = true;
+    public bool availableToAttatch { get; set; } = true;
 
     private float moveSpeed = 2f;
-    private float offsetplayerCornerDist = 0.35f;
+    private float offsetplayerCornerDist = 1f;
     private ClimbingManager climbingManager;
     private bool endOnGoToGround = false;
-    private Vector3 leftPoint;
-    private Vector3 rightPoint;
+    public Transform leftPoint;
+    public Transform rightPoint;
 
 
     void Start()
     {
-        CalculateBounds();
         climbingManager = GameManager.Instance.ClimbingManager;
-    }
-
-    private void CalculateBounds()
-    {
-        Renderer renderer = GetComponent<Renderer>();
-
-        if (renderer != null)
-        {
-            Bounds bounds = renderer.bounds;
-
-            rightPoint = bounds.center - transform.right * bounds.extents.x;
-            leftPoint = bounds.center + transform.right * bounds.extents.x;
-        }
-        else
-        {
-            Debug.LogError("Renderer non trouvé sur l'objet " + gameObject.name);
-        }
     }
 
     public void StartClimbingCondition()
@@ -134,7 +114,10 @@ public class Edge : MonoBehaviour, IClimbable
 
     private void MoveLeft()
     {
-        if (climbingManager.transform.position.x > leftPoint.x + offsetplayerCornerDist)
+        Vector2 playerPos2D = new Vector2(climbingManager.transform.position.x, climbingManager.transform.position.z);
+        Vector2 leftPoint2D = new Vector2(leftPoint.position.x,leftPoint.position.z);
+
+        if (Vector2.Distance(playerPos2D, leftPoint2D) > offsetplayerCornerDist)
         {
             climbingManager.playerMovement.Move(transform.right * moveSpeed);
         }
@@ -142,7 +125,10 @@ public class Edge : MonoBehaviour, IClimbable
 
     private void MoveRight()
     {
-        if (climbingManager.transform.position.x < rightPoint.x - offsetplayerCornerDist)
+        Vector2 playerPos2D = new Vector2(climbingManager.transform.position.x, climbingManager.transform.position.z);
+        Vector2 RightPoint2D = new Vector2(rightPoint.position.x, rightPoint.position.z);
+
+        if (Vector2.Distance(playerPos2D, RightPoint2D) > offsetplayerCornerDist)
         {
             climbingManager.playerMovement.Move(-transform.right * moveSpeed);
         }
@@ -150,14 +136,14 @@ public class Edge : MonoBehaviour, IClimbable
 
     public bool StopClimbingCondition(StarterAssetsInputs _input)
     {
-        
+
         if (_input.move.y == 1 && Input.GetKeyDown(KeyCode.Space))
         {
             endOnGoToGround = false;
             climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDEgdeToTop);
             return true;
         }
-        
+
         else if (_input.move.y == -1 && Input.GetKeyDown(KeyCode.Space))
         {
             endOnGoToGround = true;
@@ -192,7 +178,7 @@ public class Edge : MonoBehaviour, IClimbable
     {
         float forwardOffset = 0.2f;
 
-        while ( Math.Abs (climbingManager.FootPosition.position.z  -  (transform.position.z - transform.forward.z * forwardOffset)) > 0.2f)
+        while (Math.Abs(climbingManager.FootPosition.position.z - (transform.position.z - transform.forward.z * forwardOffset)) > 0.2f)
         {
             if (climbingManager.FootPosition.position.y < transform.position.y)
             {
@@ -209,8 +195,8 @@ public class Edge : MonoBehaviour, IClimbable
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(leftPoint, 0.1f);
+        Gizmos.DrawSphere(leftPoint.position, 0.1f);
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(rightPoint, 0.1f);
+        Gizmos.DrawSphere(rightPoint.position, 0.1f);
     }
 }
