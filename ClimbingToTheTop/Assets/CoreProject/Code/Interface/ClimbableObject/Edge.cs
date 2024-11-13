@@ -32,6 +32,27 @@ public class Edge : MonoBehaviour, IClimbable
         }
     }
 
+    private IEnumerator LookAtEdgeCoroutine()
+    {
+        Transform playerTransform = climbingManager.transform;
+        Vector3 playerTransformForwardStart = playerTransform.forward;
+        Vector3 targetRotation = -transform.forward;
+        float alpha = 0f;
+        bool isLookAtEdge = false;
+
+        while (!isLookAtEdge)
+        {
+            playerTransform.forward = Vector3.Lerp(playerTransformForwardStart, targetRotation, alpha);
+            alpha += Time.deltaTime * 2;
+            if (alpha >= 1)
+            {
+                isLookAtEdge = true;
+            }
+
+            yield return null;
+        }
+    }
+
     private IEnumerator AdjusteToEdgeCoroutine()
     {
         Transform playerTransform = climbingManager.neckPosition;
@@ -57,26 +78,7 @@ public class Edge : MonoBehaviour, IClimbable
         climbingManager.SetVariableWhenAttatchOnClimbable();
     }
 
-    private IEnumerator LookAtEdgeCoroutine()
-    {
-        Transform playerTransform = climbingManager.transform;
-        Vector3 playerTransformForwardStart = playerTransform.forward;
-        Vector3 targetRotation = -transform.forward;
-        float alpha = 0f;
-        bool isLookAtEdge = false;
-
-        while (!isLookAtEdge)
-        {
-            playerTransform.forward = Vector3.Lerp(playerTransformForwardStart, targetRotation, alpha);
-            alpha += Time.deltaTime * 2;
-            if (alpha >= 1)
-            {
-                isLookAtEdge = true;
-            }
-
-            yield return null;
-        }
-    }
+    
 
     private void ReplacePlayer(ClimbingManager _climbingManager, Transform _playerTransform, Vector3 _targetPosition, float _replaceSpeed)
     {

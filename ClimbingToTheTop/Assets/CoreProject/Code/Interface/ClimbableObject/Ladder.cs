@@ -135,8 +135,6 @@ public class Ladder : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopLadderCoroutine()
     {
-        float forwardOffset = 0.5f;
-
         while (climbingManager.FootPosition.position.y < topOFLadder.position.y)
         {
             if (climbingManager.FootPosition.position.y < topOFLadder.position.y)
