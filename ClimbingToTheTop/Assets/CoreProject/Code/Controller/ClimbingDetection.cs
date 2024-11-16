@@ -36,11 +36,20 @@ public class ClimbingDetection : MonoBehaviour
 
                 if (dotProduct > Mathf.Cos(detectionAngle * Mathf.Deg2Rad))
                 {
-                    IClimbable climbable = hitCollider.GetComponent<IClimbable>();
-                    if (climbable != null)
+                    Ray ray = new Ray(centerOfPlayer.position, (hitCollider.transform.position - centerOfPlayer.position).normalized);
+                    if (Physics.Raycast(ray, out RaycastHit hit, gripDistance))
                     {
-                        climbingManager.StartClimbingTest(climbable);
+                        if (hit.collider == hitCollider)
+                        {
+                            IClimbable climbable = hitCollider.GetComponent<IClimbable>();
+                            if (climbable != null)
+                            {
+                                climbingManager.StartClimbingTest(climbable);
+                            }
+                        }
                     }
+
+                   
                 }
             }
         }

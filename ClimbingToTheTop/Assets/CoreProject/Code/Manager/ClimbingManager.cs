@@ -30,6 +30,7 @@ public class ClimbingManager : MonoBehaviour
     public Transform centerOfPlayer;
     public Transform neckPosition;
     public Transform FootPosition;
+    public CollideTestWithEdge playerCollideEdge;
     [HideInInspector] public bool stopClimbingCondition = false;
     [HideInInspector] public bool enableBasicMovement = true;
     [HideInInspector] public HandPlacementManager handPlacementManager;

@@ -8,7 +8,7 @@ public class Edge : MonoBehaviour, IClimbable
     public bool availableToAttatch { get; set; } = true;
 
     private float moveSpeed = 2f;
-    private float offsetplayerCornerDist = 1f;
+    private float offsetplayerCornerDist = 0.5f;
     private ClimbingManager climbingManager;
     private bool endOnGoToGround = false;
     public Transform leftPoint;
@@ -56,18 +56,16 @@ public class Edge : MonoBehaviour, IClimbable
     private IEnumerator AdjusteToEdgeCoroutine()
     {
         Transform playerTransform = climbingManager.neckPosition;
-        float offsetY = 0.21f;
-        float offsetZ = 0.12f;
-        Vector3 targetPosition = new Vector3(playerTransform.position.x, transform.position.y + offsetY, transform.position.z + offsetZ) + transform.forward * 0.4f;
-        float replaceSpeed = 5f;
-
+        float replaceSpeed = 3f;
+        float yDistanceThreshold = 0.1f;
+        float targetY = transform.position.y + 0.2f;
         bool isAdjusteToEdge = false;
 
         while (!isAdjusteToEdge)
         {
-            ReplacePlayer(climbingManager, playerTransform, targetPosition, replaceSpeed);
+            ReplacePlayer(climbingManager, playerTransform, targetY, replaceSpeed);
 
-            if (Math.Abs(playerTransform.position.y - targetPosition.y) <= 0.1f && Math.Abs(playerTransform.position.z - targetPosition.z) <= 0.1f)
+            if (climbingManager.playerCollideEdge.isOnEdge && Mathf.Abs(playerTransform.position.y - targetY) <= yDistanceThreshold)
             {
                 isAdjusteToEdge = true;
             }
@@ -80,9 +78,9 @@ public class Edge : MonoBehaviour, IClimbable
 
     
 
-    private void ReplacePlayer(ClimbingManager _climbingManager, Transform _playerTransform, Vector3 _targetPosition, float _replaceSpeed)
+    private void ReplacePlayer(ClimbingManager _climbingManager, Transform _playerTransform, float _targetY, float _replaceSpeed)
     {
-        if (_playerTransform.position.y < _targetPosition.y)
+        if (_playerTransform.position.y < _targetY)
         {
             _climbingManager.playerMovement.Move(new Vector3(0, _replaceSpeed, 0));
         }
@@ -90,15 +88,7 @@ public class Edge : MonoBehaviour, IClimbable
         {
             _climbingManager.playerMovement.Move(new Vector3(0, -_replaceSpeed, 0));
         }
-
-        if (_playerTransform.position.z < _targetPosition.z)
-        {
-            _climbingManager.playerMovement.Move(new Vector3(0, 0, _replaceSpeed));
-        }
-        else
-        {
-            _climbingManager.playerMovement.Move(new Vector3(0, 0, -_replaceSpeed));
-        }
+        _climbingManager.playerMovement.Move(_playerTransform.forward * _replaceSpeed);
     }
 
     public void OnClimb(Vector2 _inputDirection)
@@ -184,7 +174,7 @@ public class Edge : MonoBehaviour, IClimbable
         {
             if (climbingManager.FootPosition.position.y < transform.position.y)
             {
-                climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+                climbingManager.playerMovement.Move(Vector3.up * 1.7f);
             }
 
             climbingManager.playerMovement.Move(climbingManager.transform.forward * 0.5f);
