@@ -168,8 +168,6 @@ public class Edge : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopCoroutine()
     {
-        float upWardOffset = 0.2f;
-
         while (climbingManager.FootPosition.position.y  < transform.position.y)
         {
             climbingManager.playerMovement.Move(Vector3.up * 1.5f);
