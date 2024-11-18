@@ -47,7 +47,8 @@ public class ClimbingManager : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         playerAnimationController = GetComponent<PlayerAnimationController>();
 
-        if (handPlacementManager == null || playerCameraController == null || playerMovement == null || playerAnimationController == null)
+        if (handPlacementManager == null || playerCameraController == null 
+            || playerMovement == null || playerAnimationController == null)
         {
             Debug.LogError("ClimbingManager: Missing dependencies!");
         }
@@ -65,7 +66,7 @@ public class ClimbingManager : MonoBehaviour
         {
             ResetAnimatorVariable();
             climbable.StartClimbingCondition();
-            if (lastClimbable != null)
+            if (lastClimbable != null) // if != null strartclimbing condition tell that we can climb
             {
                 lastClimbable.availableToAttatch = true;
             }
@@ -94,26 +95,5 @@ public class ClimbingManager : MonoBehaviour
     public void SetVariableWhenAttatchOnClimbable()
     {
         isClimbing = true;
-        SetPlayerForwardEnum();
-    }
-
-    public void SetPlayerForwardEnum()
-    {
-        if (transform.forward == new Vector3(1,0,0))
-        {
-            playerForwardOnClimbable = PlayerForwardOnClimbable.RIGHT;
-        }
-        if (transform.forward == new Vector3(-1, 0, 0))
-        {
-            playerForwardOnClimbable = PlayerForwardOnClimbable.LEFT;
-        }
-        if (transform.forward == new Vector3(0, 0, 1))
-        {
-            playerForwardOnClimbable = PlayerForwardOnClimbable.FORWARD;
-        }
-        if (transform.forward == new Vector3(0, 0, -1))
-        {
-            playerForwardOnClimbable = PlayerForwardOnClimbable.BACK;
-        }
     }
 }
