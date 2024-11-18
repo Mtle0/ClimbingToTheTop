@@ -58,7 +58,7 @@ public class Edge : MonoBehaviour, IClimbable
         Transform playerTransform = climbingManager.neckPosition;
         float replaceSpeed = 3f;
         float yDistanceThreshold = 0.1f;
-        float targetY = transform.position.y + 0.2f;
+        float targetY = transform.position.y + 0.175f;
         bool isAdjusteToEdge = false;
 
         while (!isAdjusteToEdge)
@@ -168,19 +168,16 @@ public class Edge : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopCoroutine()
     {
-        float forwardOffset = 0.2f;
+        float upWardOffset = 0.2f;
 
-        while (Math.Abs(climbingManager.FootPosition.position.z - (transform.position.z - transform.forward.z * forwardOffset)) > 0.2f)
+        while (climbingManager.FootPosition.position.y  < transform.position.y)
         {
-            if (climbingManager.FootPosition.position.y < transform.position.y)
-            {
-                climbingManager.playerMovement.Move(Vector3.up * 1.7f);
-            }
-
-            climbingManager.playerMovement.Move(climbingManager.transform.forward * 0.5f);
+            climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+            climbingManager.playerMovement.Move(climbingManager.transform.forward * 0.8f);
             yield return null;
         }
-
+        climbingManager.playerMovement.Move(Vector3.up);
+        climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
         climbingManager.enableBasicMovement = true;
     }
 

@@ -135,16 +135,15 @@ public class Ladder : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopLadderCoroutine()
     {
+        float upWardOffset = 0.2f;
         while (climbingManager.FootPosition.position.y < topOFLadder.position.y)
         {
-            if (climbingManager.FootPosition.position.y < topOFLadder.position.y)
-            {
-                climbingManager.playerMovement.Move(Vector3.up * 1.5f);
-            }
-            
+            climbingManager.playerMovement.Move(Vector3.up * 1.5f);
             climbingManager.playerMovement.Move(climbingManager.transform.forward * 1.5f);
             yield return null;
         }
+        climbingManager.playerMovement.Move(Vector3.up);
+        climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
         climbingManager.enableBasicMovement = true;
     }
 }
