@@ -1,6 +1,6 @@
 using StarterAssets;
-using System;
 using System.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Ladder : MonoBehaviour, IClimbable
@@ -10,7 +10,9 @@ public class Ladder : MonoBehaviour, IClimbable
     private float climbDistance = 0.55f;
     private float moveSpeed = 2f;
     public Transform topOFLadder;
+    public Transform bottomOFLadder;
     private ClimbingManager climbingManager;
+    private bool endClimbOnTop = false;
 
     public void Start()
     {
@@ -19,7 +21,7 @@ public class Ladder : MonoBehaviour, IClimbable
 
     public void StartClimbingCondition()
     {
-        if (climbingManager.playerMovement.Grounded)
+        if (climbingManager.playerMovement.Grounded && availableToAttatch)
         {
             Transform centerOfPlayer = climbingManager.centerOfPlayer;
             RaycastHit hit;
@@ -117,9 +119,16 @@ public class Ladder : MonoBehaviour, IClimbable
     public bool StopClimbingCondition(StarterAssetsInputs _input)
     {
         Transform neckOfPlayer = climbingManager.neckPosition;
+        Transform footOfPlayer = climbingManager.FootPosition;
 
         if (neckOfPlayer.position.y >= topOFLadder.position.y)
         {
+            endClimbOnTop = true;
+            return true;
+        }
+        else if (_input.move.y == -1 && math.abs(footOfPlayer.position.y - bottomOFLadder.position.y) <= 0.2f)
+        {
+            endClimbOnTop = false;
             return true;
         }
         return false;
@@ -128,9 +137,17 @@ public class Ladder : MonoBehaviour, IClimbable
 
     public void EndClimb()
     {
-        climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
         availableToAttatch = false;
-        StartCoroutine(GoToTopLadderCoroutine());
+        if (endClimbOnTop)
+        {
+            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
+            StartCoroutine(GoToTopLadderCoroutine());
+        }
+        else
+        {
+            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.AnimeIDClimbingToBottomLadder);
+            StartCoroutine(GoToBottomOFLadderCoroutine());
+        }
     }
 
     private IEnumerator GoToTopLadderCoroutine()
@@ -143,6 +160,22 @@ public class Ladder : MonoBehaviour, IClimbable
         }
         climbingManager.playerMovement.Move(Vector3.up);
         climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
+        climbingManager.enableBasicMovement = true;
+    }
+
+    private IEnumerator GoToBottomOFLadderCoroutine()
+    {
+        Transform playerTransform = climbingManager.transform;
+        Quaternion startRotation = playerTransform.rotation;
+        Quaternion targetRotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+
+        for (float alpha = 0f; alpha < 1f; alpha += Time.deltaTime * 2)
+        {
+            playerTransform.rotation = Quaternion.Slerp(startRotation, targetRotation, alpha);
+            yield return null;
+        }
+        climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
+        playerTransform.rotation = targetRotation;
         climbingManager.enableBasicMovement = true;
     }
 }

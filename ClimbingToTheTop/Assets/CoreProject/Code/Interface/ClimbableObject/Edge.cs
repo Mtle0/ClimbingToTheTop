@@ -88,7 +88,22 @@ public class Edge : MonoBehaviour, IClimbable
         {
             _climbingManager.playerMovement.Move(new Vector3(0, -_replaceSpeed, 0));
         }
-        _climbingManager.playerMovement.Move(_playerTransform.forward * _replaceSpeed);
+
+        if (!climbingManager.playerCollideEdge.isOnEdge)
+        {
+            Vector3 directionToEdge = (climbingManager.playerCollideEdge.transform.position - transform.position).normalized;
+            float dotProduct = Vector3.Dot(transform.forward, directionToEdge);
+
+            if (dotProduct > 0) 
+            {
+                _climbingManager.playerMovement.Move(_playerTransform.forward * _replaceSpeed);
+            }
+            else
+            {
+                _climbingManager.playerMovement.Move(-_playerTransform.forward * _replaceSpeed);
+            }
+        }
+       
     }
 
     public void OnClimb(Vector2 _inputDirection)
@@ -171,7 +186,6 @@ public class Edge : MonoBehaviour, IClimbable
         while (climbingManager.FootPosition.position.y  < transform.position.y)
         {
             climbingManager.playerMovement.Move(Vector3.up * 1.5f);
-            climbingManager.playerMovement.Move(climbingManager.transform.forward * 0.8f);
             yield return null;
         }
         climbingManager.playerMovement.Move(Vector3.up);
