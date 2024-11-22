@@ -123,8 +123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcad9c3dca4f12b4ebefbf6723618bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topOFLadder: {fileID: 4204738922683545193}
-  bottomOFLadder: {fileID: 7789468647149552511}
+  topOfLadder: {fileID: 4204738922683545193}
+  bottomOfLadder: {fileID: 7789468647149552511}
 --- !u!1 &3751587677484170870
 GameObject:
   m_ObjectHideFlags: 0

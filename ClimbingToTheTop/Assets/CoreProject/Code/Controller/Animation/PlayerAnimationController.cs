@@ -2,21 +2,23 @@ using UnityEngine;
 
 public class PlayerAnimationController : MonoBehaviour
 {
-    private Animator animator;
-    public Animator Animator {  get { return animator; } }
+    private Animator _animator;
+    public Animator Animator => _animator;
     private PlayerMovement _movement;
-    private bool hasAnimator;
-    public bool HasAnimator { get { return hasAnimator; } }
-    private float animationBlend;
-    public float AnimationBlend { get { return animationBlend; } set { animationBlend = value; } }
-    //parametter
-    [HideInInspector]public int animIDSpeed, animIDGrounded, animIDJump, animIDFreeFall, animIDMotionSpeed;
-    [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingToTopLadder, AnimeIDIdleOnLadder, AnimeIDClimbingToBottomLadder;
-    [HideInInspector] public int animeIDClimbingGroundToEdge, animeIDClimbingEdgeAxisX, animeIDEgdeToTop, animeIDEdgeToGround;
+    public bool HasAnimator { get; private set; }
 
-    void Start()
+    public float AnimationBlend { get; set; }
+
+    //parameter
+    [HideInInspector]public int animIDSpeed, animIDGrounded, animIDJump, animIDFreeFall, animIDMotionSpeed;
+    [HideInInspector] public int animeIDClimbingLadder, animeIDClimbingToTopLadder;
+    [HideInInspector] public int animeIDIdleOnLadder;
+    [HideInInspector] public int animeIDClimbingToBottomLadder;
+    [HideInInspector] public int animeIDClimbingGroundToEdge, animeIDClimbingEdgeAxisX, animeIDEdgeToTop, animeIDEdgeToGround;
+
+    private void Start()
     {
-        hasAnimator = TryGetComponent(out animator);
+        HasAnimator = TryGetComponent(out _animator);
         AssignAnimationIDs();
     }
 
@@ -27,18 +29,18 @@ public class PlayerAnimationController : MonoBehaviour
         animIDJump = Animator.StringToHash("Jump");
         animIDFreeFall = Animator.StringToHash("FreeFall");
         animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-        animeIDClimbingLadder = Animator.StringToHash("AttatchLadder");
+        animeIDClimbingLadder = Animator.StringToHash("AttachLadder");
         animeIDClimbingToTopLadder = Animator.StringToHash("GoTopOfLadder");
-        AnimeIDClimbingToBottomLadder = Animator.StringToHash("GoToBottomLadder");
-        AnimeIDIdleOnLadder = Animator.StringToHash("IsMovingOnLadder");
+        animeIDClimbingToBottomLadder = Animator.StringToHash("GoToBottomLadder");
+        animeIDIdleOnLadder = Animator.StringToHash("IsMovingOnLadder");
         animeIDClimbingGroundToEdge = Animator.StringToHash("AttachToEdge");
         animeIDClimbingEdgeAxisX = Animator.StringToHash("EdgeMovingAxisX");
-        animeIDEgdeToTop = Animator.StringToHash("EdgeToTop");
+        animeIDEdgeToTop = Animator.StringToHash("EdgeToTop");
         animeIDEdgeToGround = Animator.StringToHash("EdgeToGround");
     }
 
     public void Update()
     {
-        hasAnimator = TryGetComponent(out animator);
+        HasAnimator = TryGetComponent(out _animator);
     }
 }

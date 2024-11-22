@@ -1,35 +1,36 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class ClimbingManager : MonoBehaviour
 {
     #region variable
-    private bool isClimbing = false;
+    private bool _isClimbing = false;
     public bool IsClimbing
     {
-        get { return isClimbing; }
+        get => _isClimbing;
         set
         {
-            isClimbing = value;
+            _isClimbing = value;
             if (value)
             {
-                handPlacementManager.StartPlaceHands(currentClimbable);
+                HandPlacementManager.StartPlaceHands(CurrentClimbable);
             }
         }
     }
 
     public enum PlayerForwardOnClimbable
     {
-        FORWARD,
-        LEFT,
-        RIGHT,
-        BACK
+        Forward,
+        Left,
+        Right,
+        Back
     }
 
-    public IClimbable currentClimbable;
-    public IClimbable lastClimbable;
+    public IClimbable CurrentClimbable;
+    public IClimbable LastClimbable;
     public Transform centerOfPlayer;
     public Transform neckPosition;
-    public Transform FootPosition;
+    [FormerlySerializedAs("FootPosition")] public Transform footPosition;
     public CollideTestWithEdge playerCollideEdge;
     [HideInInspector] public bool stopClimbingCondition = false;
     [HideInInspector] public bool enableBasicMovement = true;
@@ -62,38 +63,34 @@ public class ClimbingManager : MonoBehaviour
 
     public void StartClimbingTest(IClimbable climbable)
     {
-        if (climbable.availableToAttatch)
+        if (!climbable.AvailableToAttach) return;
+        ResetAnimatorVariable();
+        climbable.StartClimbingCondition();
+        if (LastClimbable != null) // if != null startClimbing condition tell that we can climb
         {
-            ResetAnimatorVariable();
-            climbable.StartClimbingCondition();
-            if (lastClimbable != null) // if != null strartclimbing condition tell that we can climb
-            {
-                lastClimbable.availableToAttatch = true;
-            }
+            LastClimbable.AvailableToAttach = true;
         }
     }
 
     public void ClimbingMovement()
     {
-        if (!stopClimbingCondition)
-        {
-            currentClimbable.OnClimb(playerMovement.Input.move);
-            stopClimbingCondition = currentClimbable.StopClimbingCondition(playerMovement.Input);
-        }
+        if (stopClimbingCondition) return;
+        CurrentClimbable.OnClimb(playerMovement.Input.move);
+        stopClimbingCondition = CurrentClimbable.StopClimbingCondition(playerMovement.Input);
     }
-
+    
     public void StopClimbing()
     {
-        currentClimbable.EndClimb();
-        handPlacementManager.StopPlaceHands(currentClimbable);
-        isClimbing = false;
+        CurrentClimbable.EndClimb();
+        HandPlacementManager.StopPlaceHands(CurrentClimbable);
+        _isClimbing = false;
         stopClimbingCondition = false;
-        lastClimbable = currentClimbable;
-        currentClimbable = null;
+        LastClimbable = CurrentClimbable;
+        CurrentClimbable = null;
     }
 
-    public void SetVariableWhenAttatchOnClimbable()
+    public void SetVariableWhenAttachOnClimbable()
     {
-        isClimbing = true;
+        _isClimbing = true;
     }
 }

@@ -4,58 +4,56 @@ using UnityEngine.InputSystem;
 
 public class PlayerCameraController : MonoBehaviour
 {
-    private StarterAssetsInputs input;
+    private StarterAssetsInputs _input;
 
-    [Header("Cinemachine Settings")]
-    public GameObject CinemachineCameraTarget;
-    public float TopClamp = 70.0f;
-    public float BottomClamp = -30.0f;
-    public float CameraAngleOverride = 0.0f;
-    public bool LockCameraPosition = false;
+    [Header("Cine machine Settings")]
+    public GameObject cineMachineCameraTarget;
+    public float topClamp = 70.0f;
+    public float bottomClamp = -30.0f;
+    public float cameraAngleOverride = 0.0f;
+    public bool lockCameraPosition = false;
 
-    private float cinemachineTargetYaw, cinemachineTargetPitch;
-    private const float threshold = 0.01f;
-    private GameObject mainCamera;
-    public GameObject MainCamera { get { return mainCamera; } }
-    private float targetRotation;
-    public float TargetRotation { get { return targetRotation; } set { targetRotation = value; } }
-   
+    private float _cineMachineTargetYaw, _cineMachineTargetPitch;
+    private const float Threshold = 0.01f;
+    public GameObject MainCamera { get; private set; }
+
+    public float TargetRotation { get; set; }
 
 
-    private PlayerInput playerInput;
+    private PlayerInput _playerInput;
     private bool IsCurrentDeviceMouse =>
 #if ENABLE_INPUT_SYSTEM
-            playerInput.currentControlScheme == "KeyboardMouse";
+            _playerInput.currentControlScheme == "KeyboardMouse";
 #else
             false;
 #endif
 
     private void Awake()
     {
-        mainCamera = mainCamera ?? GameObject.FindGameObjectWithTag("MainCamera");
+        MainCamera = MainCamera ?? GameObject.FindGameObjectWithTag("MainCamera");
     }
 
-    void Start()
+    private void Start()
     {
-        input = GetComponent<StarterAssetsInputs>();
-        playerInput = GetComponent<PlayerInput>();
+        _input = GetComponent<StarterAssetsInputs>();
+        _playerInput = GetComponent<PlayerInput>();
     }
 
     public void LateUpdate() => RotateCamera();
 
-    public void RotateCamera()
+    private void RotateCamera()
     {
-        if (input.look.sqrMagnitude >= threshold && !LockCameraPosition)
+        if (_input.look.sqrMagnitude >= Threshold && !lockCameraPosition)
         {
             float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-            cinemachineTargetYaw += input.look.x * deltaTimeMultiplier;
-            cinemachineTargetPitch += input.look.y * deltaTimeMultiplier;
+            _cineMachineTargetYaw += _input.look.x * deltaTimeMultiplier;
+            _cineMachineTargetPitch += _input.look.y * deltaTimeMultiplier;
         }
 
-        cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
-        cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, BottomClamp, TopClamp);
+        _cineMachineTargetYaw = ClampAngle(_cineMachineTargetYaw, float.MinValue, float.MaxValue);
+        _cineMachineTargetPitch = ClampAngle(_cineMachineTargetPitch, bottomClamp, topClamp);
 
-        CinemachineCameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0.0f);
+        cineMachineCameraTarget.transform.rotation = Quaternion.Euler(_cineMachineTargetPitch + cameraAngleOverride, _cineMachineTargetYaw, 0.0f);
     }
 
     private static float ClampAngle(float angle, float min, float max)

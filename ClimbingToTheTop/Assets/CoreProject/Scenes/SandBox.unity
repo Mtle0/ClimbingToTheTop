@@ -197,7 +197,7 @@ Transform:
   m_Children:
   - {fileID: 19531015}
   - {fileID: 854484123}
-  - {fileID: 2085913943}
+  - {fileID: 2099525080}
   - {fileID: 607285728}
   - {fileID: 8348473906588770237}
   - {fileID: 2014746475}
@@ -992,7 +992,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8049243156492587788, guid: 0db69d5821be8804aa797590e374fb5b, type: 3}
   m_PrefabInstance: {fileID: 2014746474}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &2085913942
+--- !u!1001 &2099525079
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1006,7 +1006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8153560528831452589, guid: f9b90a8e23240e147a1d262771ab4bfd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.68
+      value: 6.422
       objectReference: {fileID: 0}
     - target: {fileID: 8153560528831452589, guid: f9b90a8e23240e147a1d262771ab4bfd, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1049,10 +1049,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f9b90a8e23240e147a1d262771ab4bfd, type: 3}
---- !u!4 &2085913943 stripped
+--- !u!4 &2099525080 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8153560528831452589, guid: f9b90a8e23240e147a1d262771ab4bfd, type: 3}
-  m_PrefabInstance: {fileID: 2085913942}
+  m_PrefabInstance: {fileID: 2099525079}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &117881536028076151
 Transform:
@@ -4663,7 +4663,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   centerOfPlayer: {fileID: 382319652}
   neckPosition: {fileID: 1365453089}
-  FootPosition: {fileID: 1513513442}
+  footPosition: {fileID: 1513513442}
   playerCollideEdge: {fileID: 1029736093}
   stopClimbingCondition: 0
   enableBasicMovement: 1
@@ -4684,11 +4684,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b5ff067358ffc14e945388f3c318ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CinemachineCameraTarget: {fileID: 8338988566764880531}
-  TopClamp: 70
-  BottomClamp: -30
-  CameraAngleOverride: 0
-  LockCameraPosition: 0
+  cineMachineCameraTarget: {fileID: 8338988566764880531}
+  topClamp: 70
+  bottomClamp: -30
+  cameraAngleOverride: 0
+  lockCameraPosition: 0
 --- !u!114 &6982812146692848396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4709,10 +4709,10 @@ MonoBehaviour:
   gravity: -15
   jumpTimeout: 0.5
   fallTimeout: 0.15
-  Grounded: 1
-  GroundedOffset: -0.14
-  GroundedRadius: 0.28
-  GroundLayers:
+  grounded: 1
+  groundedOffset: -0.14
+  groundedRadius: 0.28
+  groundLayers:
     serializedVersion: 2
     m_Bits: 1
 --- !u!114 &6982812146692848397
@@ -4734,11 +4734,11 @@ MonoBehaviour:
   animIDMotionSpeed: 0
   animeIDClimbingLadder: 0
   animeIDClimbingToTopLadder: 0
-  AnimeIDIdleOnLadder: 0
-  AnimeIDClimbingToBottomLadder: 0
+  animeIDIdleOnLadder: 0
+  animeIDClimbingToBottomLadder: 0
   animeIDClimbingGroundToEdge: 0
   animeIDClimbingEdgeAxisX: 0
-  animeIDEgdeToTop: 0
+  animeIDEdgeToTop: 0
   animeIDEdgeToGround: 0
 --- !u!114 &6982812146692848398
 MonoBehaviour:

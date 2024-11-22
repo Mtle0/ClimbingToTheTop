@@ -3,17 +3,16 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private CharacterController controller;
-    private StarterAssetsInputs input;
-    private ClimbingManager climbingManager;
-    private float speed;
-    private float rotationVelocity;
-    private float jumpTimeoutDelta;
-    private float fallTimeoutDelta;
-    private float verticalVelocity;
-    private float terminalVelocity = 53.0f;
+    private CharacterController _controller;
+    private ClimbingManager _climbingManager;
+    private float _speed;
+    private float _rotationVelocity;
+    private float _jumpTimeoutDelta;
+    private float _fallTimeoutDelta;
+    private float _verticalVelocity;
+    private const float TerminalVelocity = 53.0f;
 
-    public StarterAssetsInputs Input { get { return input; } }
+    public StarterAssetsInputs Input { get; private set; }
 
     [Header("Player Settings")]
     public float moveSpeed = 2.0f;
@@ -26,35 +25,35 @@ public class PlayerMovement : MonoBehaviour
     public float fallTimeout = 0.15f;
 
     [Header("Grounded Settings")]
-    public bool Grounded = true;
-    public float GroundedOffset = -0.14f;
-    public float GroundedRadius = 0.28f;
-    public LayerMask GroundLayers;
+    public bool grounded = true;
+    public float groundedOffset = -0.14f;
+    public float groundedRadius = 0.28f;
+    public LayerMask groundLayers;
 
     public void Awake()
     {
-        controller = GetComponent<CharacterController>();
-        input = GetComponent<StarterAssetsInputs>();
-        climbingManager = GetComponent<ClimbingManager>();
+        _controller = GetComponent<CharacterController>();
+        Input = GetComponent<StarterAssetsInputs>();
+        _climbingManager = GetComponent<ClimbingManager>();
     }
 
     public void Start()
     {
-        jumpTimeoutDelta = jumpTimeout;
-        fallTimeoutDelta = fallTimeout;
+        _jumpTimeoutDelta = jumpTimeout;
+        _fallTimeoutDelta = fallTimeout;
     }
 
     public void Update()
     {
-        if (climbingManager.IsClimbing)
+        if (_climbingManager.IsClimbing)
         {
-            climbingManager.ClimbingMovement();
-            if (climbingManager.stopClimbingCondition)
+            _climbingManager.ClimbingMovement();
+            if (_climbingManager.stopClimbingCondition)
             {
-                climbingManager.StopClimbing();
+                _climbingManager.StopClimbing();
             }
         }
-        else if (climbingManager.enableBasicMovement)
+        else if (_climbingManager.enableBasicMovement)
         {
             JumpAndGravity();
             GroundedCheck();
@@ -64,121 +63,119 @@ public class PlayerMovement : MonoBehaviour
 
     private void RegularMove()
     {
-        PlayerAnimationController animationController = climbingManager.playerAnimationController;
-        PlayerCameraController cameraController = climbingManager.playerCameraController;
+        PlayerAnimationController animationController = _climbingManager.playerAnimationController;
+        PlayerCameraController cameraController = _climbingManager.playerCameraController;
 
 
-        float targetSpeed = input.sprint ? sprintSpeed : moveSpeed;
-        if (input.move == Vector2.zero) targetSpeed = 0.0f;
+        float targetSpeed = Input.sprint ? sprintSpeed : moveSpeed;
+        if (Input.move == Vector2.zero) targetSpeed = 0.0f;
 
-        float currentHorizontalSpeed = new Vector3(controller.velocity.x, 0.0f, controller.velocity.z).magnitude;
-        float speedOffset = 0.1f;
-        float inputMagnitude = input.analogMovement ? input.move.magnitude : 1f;
+        float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
+        const float speedOffset = 0.1f;
+        float inputMagnitude = Input.analogMovement ? Input.move.magnitude : 1f;
 
         if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
         {
-            speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
-            speed = Mathf.Round(speed * 1000f) / 1000f;
+            _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
+            _speed = Mathf.Round(_speed * 1000f) / 1000f;
         }
         else
         {
-            speed = targetSpeed;
+            _speed = targetSpeed;
         }
 
         animationController.AnimationBlend = Mathf.Lerp(animationController.AnimationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
         if (animationController.AnimationBlend < 0.01f) animationController.AnimationBlend = 0f;
 
-        Vector3 inputDirection = new Vector3(input.move.x, 0.0f, input.move.y).normalized;
+        Vector3 inputDirection = new Vector3(Input.move.x, 0.0f, Input.move.y).normalized;
 
-        if (input.move != Vector2.zero)
+        if (Input.move != Vector2.zero)
         {
             cameraController.TargetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraController.MainCamera.transform.eulerAngles.y;
-            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraController.TargetRotation, ref rotationVelocity, rotationSmoothTime);
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, cameraController.TargetRotation, ref _rotationVelocity, rotationSmoothTime);
             transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
         }
 
         Vector3 targetDirection = Quaternion.Euler(0.0f, cameraController.TargetRotation, 0.0f) * Vector3.forward;
-        controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
+        _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
-        if (animationController.HasAnimator)
-        {
-            animationController.Animator.SetFloat(animationController.animIDSpeed, animationController.AnimationBlend);
-            animationController.Animator.SetFloat(animationController.animIDMotionSpeed, inputMagnitude);
-        }
+        if (!animationController.HasAnimator) return;
+        animationController.Animator.SetFloat(animationController.animIDSpeed, animationController.AnimationBlend);
+        animationController.Animator.SetFloat(animationController.animIDMotionSpeed, inputMagnitude);
     }
 
     private void GroundedCheck()
     {
-        PlayerAnimationController animationController = climbingManager.playerAnimationController;
-        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-        Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+        PlayerAnimationController animationController = _climbingManager.playerAnimationController;
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
+        grounded = Physics.CheckSphere(spherePosition, groundedRadius, groundLayers, QueryTriggerInteraction.Ignore);
 
         if (animationController.HasAnimator)
         {
-            animationController.Animator.SetBool(animationController.animIDGrounded, Grounded);
+            animationController.Animator.SetBool(animationController.animIDGrounded, grounded);
         }
     }
 
     private void JumpAndGravity()
     {
-        PlayerAnimationController animationController = climbingManager.playerAnimationController;
-        if (Grounded)
+        PlayerAnimationController animationController = _climbingManager.playerAnimationController;
+        if (grounded)
         {
-            if (climbingManager.lastClimbable != null)
+            if (_climbingManager.LastClimbable != null)
             {
-                climbingManager.lastClimbable.availableToAttatch = true;
+                _climbingManager.LastClimbable.AvailableToAttach = true;
             }
 
-            fallTimeoutDelta = fallTimeout;
+            _fallTimeoutDelta = fallTimeout;
             if (animationController.HasAnimator)
             {
                 animationController.Animator.SetBool(animationController.animIDJump, false);
                 animationController.Animator.SetBool(animationController.animIDFreeFall, false);
             }
 
-            if (verticalVelocity < 0.0f)
+            if (_verticalVelocity < 0.0f)
             {
-                verticalVelocity = -2f;
+                _verticalVelocity = -2f;
             }
 
-            if (input.jump && jumpTimeoutDelta <= 0.0f)
+            if (Input.jump && _jumpTimeoutDelta <= 0.0f)
             {
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
                 if (animationController.HasAnimator)
                 {
                     animationController.Animator.SetBool(animationController.animIDJump, true);
                 }
             }
 
-            if (jumpTimeoutDelta >= 0.0f)
+            if (_jumpTimeoutDelta >= 0.0f)
             {
-                jumpTimeoutDelta -= Time.deltaTime;
+                _jumpTimeoutDelta -= Time.deltaTime;
             }
         }
         else
         {
-            jumpTimeoutDelta = jumpTimeout;
-            if (fallTimeoutDelta >= 0.0f)
+            _jumpTimeoutDelta = jumpTimeout;
+            if (_fallTimeoutDelta >= 0.0f)
             {
-                fallTimeoutDelta -= Time.deltaTime;
+                _fallTimeoutDelta -= Time.deltaTime;
             }
             else if (animationController.HasAnimator)
             {
                 animationController.Animator.SetBool(animationController.animIDFreeFall, true);
             }
 
-            input.jump = false;
+            Input.jump = false;
         }
 
-        if (verticalVelocity < terminalVelocity)
+        if (_verticalVelocity < TerminalVelocity)
         {
-            verticalVelocity += gravity * Time.deltaTime;
+            _verticalVelocity += gravity * Time.deltaTime;
         }
     }
 
-    public void Move(Vector3 _moveDirection)
+    public void Move(Vector3 moveDirection)
     {
-        controller.Move(_moveDirection * Time.deltaTime);
+        _controller.Move(moveDirection * Time.deltaTime);
     }
 
     private void OnFootstep(AnimationEvent animationEvent)

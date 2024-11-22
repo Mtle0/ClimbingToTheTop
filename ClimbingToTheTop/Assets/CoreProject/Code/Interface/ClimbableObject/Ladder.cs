@@ -5,53 +5,46 @@ using UnityEngine;
 
 public class Ladder : MonoBehaviour, IClimbable
 {
-    public bool availableToAttatch { get; set; } = true;
+    public bool AvailableToAttach { get; set; } = true;
 
-    private float climbDistance = 0.55f;
-    private float moveSpeed = 2f;
-    public Transform topOFLadder;
-    public Transform bottomOFLadder;
-    private ClimbingManager climbingManager;
-    private bool endClimbOnTop = false;
+    private const float ClimbDistance = 0.55f;
+    private const float MoveSpeed = 2f;
+    public Transform topOfLadder;
+    public Transform bottomOfLadder;
+    private ClimbingManager _climbingManager;
+    private bool _endClimbOnTop = false;
 
     public void Start()
     {
-        climbingManager = GameManager.Instance.ClimbingManager;
+        _climbingManager = GameManager.Instance.ClimbingManager;
     }
 
     public void StartClimbingCondition()
     {
-        if (climbingManager.playerMovement.Grounded && availableToAttatch)
-        {
-            Transform centerOfPlayer = climbingManager.centerOfPlayer;
-            RaycastHit hit;
-            Vector3 direction = centerOfPlayer.forward;
+        if (!_climbingManager.playerMovement.grounded || !AvailableToAttach) return;
+        Transform centerOfPlayer = _climbingManager.centerOfPlayer;
+        Vector3 direction = centerOfPlayer.forward;
 
-            Debug.DrawRay(centerOfPlayer.position, direction * climbDistance, Color.red);
-            if (Physics.Raycast(centerOfPlayer.position, direction, out hit, climbDistance))
-            {
-                if (hit.collider == GetComponent<Collider>())
-                {
-                    climbingManager.currentClimbable = this;
-                    climbingManager.enableBasicMovement = false;
-                    StartCoroutine(GoFrontToLadderCoroutine());
-                    StartCoroutine(LookAtLadderCoroutine());
-                }
-            }
-        }
+        Debug.DrawRay(centerOfPlayer.position, direction * ClimbDistance, Color.red);
+        if (!Physics.Raycast(centerOfPlayer.position, direction, out var hit, ClimbDistance)) return;
+        if (hit.collider != GetComponent<Collider>()) return;
+        _climbingManager.CurrentClimbable = this;
+        _climbingManager.enableBasicMovement = false;
+        StartCoroutine(GoFrontToLadderCoroutine());
+        StartCoroutine(LookAtLadderCoroutine());
     }
 
     private IEnumerator GoFrontToLadderCoroutine()
     {
-        Transform playerTransform = climbingManager.centerOfPlayer;
+        Transform playerTransform = _climbingManager.centerOfPlayer;
         Vector3 targetPosition = new Vector3(transform.position.x, playerTransform.position.y, transform.position.z) + transform.forward * 0.5f;
-        float replaceSpeed = 0.5f;
+        const float replaceSpeed = 0.5f;
 
         bool isFrontOfLadder = false;
 
         while (!isFrontOfLadder)
         {
-            ReplacePlayer(climbingManager, playerTransform, targetPosition, replaceSpeed);
+            ReplacePlayer(_climbingManager, playerTransform, targetPosition, replaceSpeed);
 
             if (Vector2.Distance(new Vector2(playerTransform.position.x, playerTransform.position.z), new Vector2(targetPosition.x, targetPosition.z)) < 0.1f)
             {
@@ -60,14 +53,14 @@ public class Ladder : MonoBehaviour, IClimbable
 
             yield return null;
         }
-        climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingLadder);
+        _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDClimbingLadder);
 
-        climbingManager.SetVariableWhenAttatchOnClimbable();
+        _climbingManager.SetVariableWhenAttachOnClimbable();
     }
 
     private IEnumerator LookAtLadderCoroutine()
     {
-        Transform playerTransform = climbingManager.transform;
+        Transform playerTransform = _climbingManager.transform;
         Vector3 playerTransformForwardStart = playerTransform.forward;
         Vector3 targetRotation = -transform.forward;
         float alpha = 0f;
@@ -86,86 +79,75 @@ public class Ladder : MonoBehaviour, IClimbable
         }
     }
 
-    private void ReplacePlayer(ClimbingManager _climbingManager, Transform _playerTransform, Vector3 _targetPosition, float _replaceSpeed)
+    private static void ReplacePlayer(ClimbingManager climbingManager, Transform playerTransform, Vector3 targetPosition, float replaceSpeed)
     {
-        if (_playerTransform.position.x < _targetPosition.x)
-        {
-            _climbingManager.playerMovement.Move(new Vector3(_replaceSpeed, 0, 0));
-        }
-        else
-        {
-            _climbingManager.playerMovement.Move(new Vector3(-_replaceSpeed, 0, 0));
-        }
+        climbingManager.playerMovement.Move(playerTransform.position.x < targetPosition.x
+            ? new Vector3(replaceSpeed, 0, 0)
+            : new Vector3(-replaceSpeed, 0, 0));
 
-        if (_playerTransform.position.z < _targetPosition.z)
-        {
-            _climbingManager.playerMovement.Move(new Vector3(0, 0, _replaceSpeed));
-        }
-        else
-        {
-            _climbingManager.playerMovement.Move(new Vector3(0, 0, -_replaceSpeed));
-        }
+        climbingManager.playerMovement.Move(playerTransform.position.z < targetPosition.z
+            ? new Vector3(0, 0, replaceSpeed)
+            : new Vector3(0, 0, -replaceSpeed));
     }
 
-    public void OnClimb(Vector2 _inputDirection)
+    public void OnClimb(Vector2 inputDirection)
     {
-        float verticalSpeed = _inputDirection.y * moveSpeed;
+        float verticalSpeed = inputDirection.y * MoveSpeed;
         Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
-        climbingManager.playerMovement.Move(moveDirection);
+        _climbingManager.playerMovement.Move(moveDirection);
 
-        climbingManager.playerAnimationController.Animator.SetBool(climbingManager.playerAnimationController.AnimeIDIdleOnLadder, verticalSpeed == 0 ? false : true);
+        _climbingManager.playerAnimationController.Animator.SetBool(_climbingManager.playerAnimationController.animeIDIdleOnLadder, verticalSpeed != 0);
     }
 
-    public bool StopClimbingCondition(StarterAssetsInputs _input)
+    public bool StopClimbingCondition(StarterAssetsInputs input)
     {
-        Transform neckOfPlayer = climbingManager.neckPosition;
-        Transform footOfPlayer = climbingManager.FootPosition;
+        Transform neckOfPlayer = _climbingManager.neckPosition;
+        Transform footOfPlayer = _climbingManager.footPosition;
 
-        if (neckOfPlayer.position.y >= topOFLadder.position.y)
+        if (neckOfPlayer.position.y >= topOfLadder.position.y)
         {
-            endClimbOnTop = true;
+            _endClimbOnTop = true;
             return true;
         }
-        else if (_input.move.y == -1 && math.abs(footOfPlayer.position.y - bottomOFLadder.position.y) <= 0.2f)
-        {
-            endClimbOnTop = false;
-            return true;
-        }
-        return false;
+
+        if (!Mathf.Approximately(input.move.y, -1) ||
+            !(math.abs(footOfPlayer.position.y - bottomOfLadder.position.y) <= 0.2f)) return false;
+        _endClimbOnTop = false;
+        return true;
     }
 
 
     public void EndClimb()
     {
-        availableToAttatch = false;
-        if (endClimbOnTop)
+        AvailableToAttach = false;
+        if (_endClimbOnTop)
         {
-            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
+            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDClimbingToTopLadder);
             StartCoroutine(GoToTopLadderCoroutine());
         }
         else
         {
-            climbingManager.playerAnimationController.Animator.SetTrigger(climbingManager.playerAnimationController.AnimeIDClimbingToBottomLadder);
-            StartCoroutine(GoToBottomOFLadderCoroutine());
+            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDClimbingToBottomLadder);
+            StartCoroutine(GoToBottomOfLadderCoroutine());
         }
     }
 
     private IEnumerator GoToTopLadderCoroutine()
     {
-        while (climbingManager.FootPosition.position.y < topOFLadder.position.y)
+        while (_climbingManager.footPosition.position.y < topOfLadder.position.y)
         {
-            climbingManager.playerMovement.Move(Vector3.up * 1.5f);
-            climbingManager.playerMovement.Move(climbingManager.transform.forward * 1.5f);
+            _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+            _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 1.5f);
             yield return null;
         }
-        climbingManager.playerMovement.Move(Vector3.up);
-        climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
-        climbingManager.enableBasicMovement = true;
+        _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+        _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 4);
+        _climbingManager.enableBasicMovement = true;
     }
 
-    private IEnumerator GoToBottomOFLadderCoroutine()
+    private IEnumerator GoToBottomOfLadderCoroutine()
     {
-        Transform playerTransform = climbingManager.transform;
+        Transform playerTransform = _climbingManager.transform;
         Quaternion startRotation = playerTransform.rotation;
         Quaternion targetRotation = Quaternion.LookRotation(transform.forward, Vector3.up);
 
@@ -174,8 +156,8 @@ public class Ladder : MonoBehaviour, IClimbable
             playerTransform.rotation = Quaternion.Slerp(startRotation, targetRotation, alpha);
             yield return null;
         }
-        climbingManager.playerMovement.Move(climbingManager.transform.forward * 4);
+        _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 4);
         playerTransform.rotation = targetRotation;
-        climbingManager.enableBasicMovement = true;
+        _climbingManager.enableBasicMovement = true;
     }
 }

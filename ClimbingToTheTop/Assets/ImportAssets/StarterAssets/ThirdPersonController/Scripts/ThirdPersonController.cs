@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -11,28 +12,28 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
-        [Header("Player Settings")]
-        public float MoveSpeed = 2.0f;
-        public float SprintSpeed = 5.335f;
-        public float RotationSmoothTime = 0.12f;
-        public float SpeedChangeRate = 10.0f;
-        public float JumpHeight = 1.2f;
-        public float Gravity = -15.0f;
-        public float JumpTimeout = 0.50f;
-        public float FallTimeout = 0.15f;
+        [FormerlySerializedAs("MoveSpeed")] [Header("Player Settings")]
+        public float moveSpeed = 2.0f;
+        [FormerlySerializedAs("SprintSpeed")] public float sprintSpeed = 5.335f;
+        [FormerlySerializedAs("RotationSmoothTime")] public float rotationSmoothTime = 0.12f;
+        [FormerlySerializedAs("SpeedChangeRate")] public float speedChangeRate = 10.0f;
+        [FormerlySerializedAs("JumpHeight")] public float jumpHeight = 1.2f;
+        [FormerlySerializedAs("Gravity")] public float gravity = -15.0f;
+        [FormerlySerializedAs("JumpTimeout")] public float jumpTimeout = 0.50f;
+        [FormerlySerializedAs("FallTimeout")] public float fallTimeout = 0.15f;
 
-        [Header("Grounded Settings")]
-        public bool Grounded = true;
-        public float GroundedOffset = -0.14f;
-        public float GroundedRadius = 0.28f;
-        public LayerMask GroundLayers;
+        [FormerlySerializedAs("Grounded")] [Header("Grounded Settings")]
+        public bool grounded = true;
+        [FormerlySerializedAs("GroundedOffset")] public float groundedOffset = -0.14f;
+        [FormerlySerializedAs("GroundedRadius")] public float groundedRadius = 0.28f;
+        [FormerlySerializedAs("GroundLayers")] public LayerMask groundLayers;
 
-        [Header("Cinemachine Settings")]
-        public GameObject CinemachineCameraTarget;
-        public float TopClamp = 70.0f;
-        public float BottomClamp = -30.0f;
-        public float CameraAngleOverride = 0.0f;
-        public bool LockCameraPosition = false;
+        [FormerlySerializedAs("CinemachineCameraTarget")] [Header("Cinemachine Settings")]
+        public GameObject cinemachineCameraTarget;
+        [FormerlySerializedAs("TopClamp")] public float topClamp = 70.0f;
+        [FormerlySerializedAs("BottomClamp")] public float bottomClamp = -30.0f;
+        [FormerlySerializedAs("CameraAngleOverride")] public float cameraAngleOverride = 0.0f;
+        [FormerlySerializedAs("LockCameraPosition")] public bool lockCameraPosition = false;
 
         // Private variables
         private float _cinemachineTargetYaw;
@@ -48,13 +49,13 @@ namespace StarterAssets
         private int _animIDSpeed, _animIDGrounded, _animIDJump, _animIDFreeFall, _animIDMotionSpeed;
         private int _animeIDClimbingLadder, _animeIDClimbingEdge;
 
-        [SerializeField] private GameObject _centerOfPlayer;
-        public Transform CenterOfPlayer { get { return _centerOfPlayer.transform; } }
+        [FormerlySerializedAs("_centerOfPlayer")] [SerializeField] private GameObject centerOfPlayer;
+        public Transform CenterOfPlayer => centerOfPlayer.transform;
 
         private bool _isClimbing;
         public bool IsClimbing
         {
-            get { return _isClimbing; }
+            get => _isClimbing;
             set
             {
                 _isClimbing = value;
@@ -70,15 +71,7 @@ namespace StarterAssets
             }
         }
 
-        private IClimbable _currentClimbable;
-        public IClimbable CurrentClimbable
-        {
-            get { return _currentClimbable; }
-            set
-            {
-                _currentClimbable = value;
-            }
-        }
+        public IClimbable CurrentClimbable { get; set; }
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -88,7 +81,7 @@ namespace StarterAssets
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
         private bool _hasAnimator;
-        private const float _threshold = 0.01f;
+        private const float Threshold = 0.01f;
 
         private bool IsCurrentDeviceMouse =>
 #if ENABLE_INPUT_SYSTEM
@@ -104,7 +97,7 @@ namespace StarterAssets
 
         private void Start()
         {
-            _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
+            _cinemachineTargetYaw = cinemachineCameraTarget.transform.rotation.eulerAngles.y;
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
@@ -114,8 +107,8 @@ namespace StarterAssets
             Debug.LogError("Missing dependencies. Please reinstall.");
 #endif
             AssignAnimationIDs();
-            _jumpTimeoutDelta = JumpTimeout;
-            _fallTimeoutDelta = FallTimeout;
+            _jumpTimeoutDelta = jumpTimeout;
+            _fallTimeoutDelta = fallTimeout;
         }
 
         private void Update()
@@ -144,18 +137,18 @@ namespace StarterAssets
 
         private void GroundedCheck()
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
+            grounded = Physics.CheckSphere(spherePosition, groundedRadius, groundLayers, QueryTriggerInteraction.Ignore);
 
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDGrounded, Grounded);
+                _animator.SetBool(_animIDGrounded, grounded);
             }
         }
 
         private void CameraRotation()
         {
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+            if (_input.look.sqrMagnitude >= Threshold && !lockCameraPosition)
             {
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
                 _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
@@ -163,9 +156,9 @@ namespace StarterAssets
             }
 
             _cinemachineTargetYaw = ClampAngle(_cinemachineTargetYaw, float.MinValue, float.MaxValue);
-            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, bottomClamp, topClamp);
 
-            CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride, _cinemachineTargetYaw, 0.0f);
+            cinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + cameraAngleOverride, _cinemachineTargetYaw, 0.0f);
         }
 
         private void Move()
@@ -182,7 +175,7 @@ namespace StarterAssets
 
         private void ClimbLadder()
         {
-            float verticalSpeed = _input.move.y * MoveSpeed; 
+            float verticalSpeed = _input.move.y * moveSpeed; 
             Vector3 moveDirection = new Vector3(0.0f, verticalSpeed, 0.0f);
 
             _controller.Move(moveDirection * Time.deltaTime);
@@ -195,7 +188,7 @@ namespace StarterAssets
 
         private void MoveOnEdge()
         {
-            float horizontalSpeed = _input.move.x * MoveSpeed; 
+            float horizontalSpeed = _input.move.x * moveSpeed; 
             Vector3 moveDirection = new Vector3(horizontalSpeed, 0.0f, 0.0f);
 
             _controller.Move(moveDirection * Time.deltaTime);
@@ -208,7 +201,7 @@ namespace StarterAssets
 
         private void RegularMove()
         {
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            float targetSpeed = _input.sprint ? sprintSpeed : moveSpeed;
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
 
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
@@ -217,7 +210,7 @@ namespace StarterAssets
 
             if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
             {
-                _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+                _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
                 _speed = Mathf.Round(_speed * 1000f) / 1000f;
             }
             else
@@ -225,7 +218,7 @@ namespace StarterAssets
                 _speed = targetSpeed;
             }
 
-            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * speedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
@@ -233,7 +226,7 @@ namespace StarterAssets
             if (_input.move != Vector2.zero)
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, rotationSmoothTime);
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
@@ -249,9 +242,9 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded)
+            if (grounded)
             {
-                _fallTimeoutDelta = FallTimeout;
+                _fallTimeoutDelta = fallTimeout;
                 if (_hasAnimator)
                 {
                     _animator.SetBool(_animIDJump, false);
@@ -265,7 +258,7 @@ namespace StarterAssets
 
                 if (_input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
-                    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+                    _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
                     if (_hasAnimator)
                     {
                         _animator.SetBool(_animIDJump, true);
@@ -279,7 +272,7 @@ namespace StarterAssets
             }
             else
             {
-                _jumpTimeoutDelta = JumpTimeout;
+                _jumpTimeoutDelta = jumpTimeout;
                 if (_fallTimeoutDelta >= 0.0f)
                 {
                     _fallTimeoutDelta -= Time.deltaTime;
@@ -294,7 +287,7 @@ namespace StarterAssets
 
             if (_verticalVelocity < _terminalVelocity)
             {
-                _verticalVelocity += Gravity * Time.deltaTime;
+                _verticalVelocity += gravity * Time.deltaTime;
             }
         }
 
@@ -327,8 +320,8 @@ namespace StarterAssets
 
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Grounded ? new Color(0.0f, 1.0f, 0.0f, 0.35f) : new Color(1.0f, 0.0f, 0.0f, 0.35f);
-            Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+            Gizmos.color = grounded ? new Color(0.0f, 1.0f, 0.0f, 0.35f) : new Color(1.0f, 0.0f, 0.0f, 0.35f);
+            Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z), groundedRadius);
         }
 
         private void OnFootstep(AnimationEvent animationEvent)

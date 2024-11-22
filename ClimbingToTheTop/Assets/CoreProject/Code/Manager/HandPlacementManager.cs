@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class HandPlacementManager : MonoBehaviour
 {
-    public void StartPlaceHands(IClimbable climbable)
+    public static void StartPlaceHands(IClimbable climbable)
     {
         if (climbable != null)
         {
@@ -10,7 +10,7 @@ public class HandPlacementManager : MonoBehaviour
         }
     }
 
-    public void StopPlaceHands(IClimbable climbable)
+    public static void StopPlaceHands(IClimbable climbable)
     {
         if (climbable != null)
         {

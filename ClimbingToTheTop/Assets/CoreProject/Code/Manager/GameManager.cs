@@ -2,18 +2,16 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    static private GameManager instance;
-    static public GameManager Instance
+    private static GameManager _instance;
+    public static GameManager Instance
     {
         get
         {
-            if (instance == null)
-            {
-                GameObject obj = new GameObject(nameof(GameManager));
-                obj.AddComponent<GameManager>();
-            }
+            if (_instance != null) return _instance;
+            GameObject obj = new GameObject(nameof(GameManager));
+            obj.AddComponent<GameManager>();
 
-            return instance;
+            return _instance;
         }
     }
 
@@ -21,15 +19,15 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null)
+        if (_instance == null)
         {
-            instance = this;
+            _instance = this;
             transform.parent = null;
-            DontDestroyOnLoad(instance.gameObject);
+            DontDestroyOnLoad(_instance.gameObject);
         }
         else
         {
-            Destroy(instance);
+            Destroy(_instance);
             return;
         }
 

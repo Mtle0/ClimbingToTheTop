@@ -359,8 +359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcad9c3dca4f12b4ebefbf6723618bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topOFLadder: {fileID: 2824611378813849152}
-  bottomOFLadder: {fileID: 8005236231137423735}
+  topOfLadder: {fileID: 2824611378813849152}
+  bottomOfLadder: {fileID: 8005236231137423735}
 --- !u!1 &6276554271024183372
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,8 +484,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcad9c3dca4f12b4ebefbf6723618bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topOFLadder: {fileID: 5610304808799695178}
-  bottomOFLadder: {fileID: 2474641851118006516}
+  topOfLadder: {fileID: 5610304808799695178}
+  bottomOfLadder: {fileID: 2474641851118006516}
 --- !u!1 &6399856612749415125
 GameObject:
   m_ObjectHideFlags: 0
@@ -733,8 +733,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcad9c3dca4f12b4ebefbf6723618bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topOFLadder: {fileID: 7518085246678567495}
-  bottomOFLadder: {fileID: 2042211533292063830}
+  topOfLadder: {fileID: 7518085246678567495}
+  bottomOfLadder: {fileID: 2042211533292063830}
 --- !u!1 &9059373796546036655
 GameObject:
   m_ObjectHideFlags: 0
@@ -858,5 +858,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcad9c3dca4f12b4ebefbf6723618bec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topOFLadder: {fileID: 7455813487557298857}
-  bottomOFLadder: {fileID: 2828846234856213247}
+  topOfLadder: {fileID: 7455813487557298857}
+  bottomOfLadder: {fileID: 2828846234856213247}
