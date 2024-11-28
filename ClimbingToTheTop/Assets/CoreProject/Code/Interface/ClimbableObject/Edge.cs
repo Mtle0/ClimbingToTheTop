@@ -12,7 +12,9 @@ public class Edge : MonoBehaviour, IClimbable
     private bool _endOnGoToGround = false;
     public Transform leftPoint;
     public Transform rightPoint;
-
+    public Edge leftEdge;
+    public Edge rightEdge;
+    private bool coroutineRunning = false;
 
     private void Start()
     {
@@ -24,7 +26,17 @@ public class Edge : MonoBehaviour, IClimbable
         if (_climbingManager.playerMovement.grounded || !AvailableToAttach) return;
         _climbingManager.CurrentClimbable = this;
         _climbingManager.enableBasicMovement = false;
-        _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDClimbingGroundToEdge);
+        _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController
+            .animeIDClimbingGroundToEdge);
+        StartCoroutine(AdjustToEdgeCoroutine());
+        StartCoroutine(LookAtEdgeCoroutine());
+    }
+
+    private void StartClimbingToNextEdge()
+    {
+        if (_climbingManager.playerMovement.grounded || !AvailableToAttach) return;
+        _climbingManager.CurrentClimbable = this;
+        _climbingManager.enableBasicMovement = false;
         StartCoroutine(AdjustToEdgeCoroutine());
         StartCoroutine(LookAtEdgeCoroutine());
     }
@@ -57,12 +69,12 @@ public class Edge : MonoBehaviour, IClimbable
         const float yDistanceThreshold = 0.1f;
         float targetY = transform.position.y + 0.175f;
         bool isAdjustToEdge = false;
-
         while (!isAdjustToEdge)
         {
             ReplacePlayer(_climbingManager, playerTransform, targetY, replaceSpeed);
 
-            if (_climbingManager.playerCollideEdge.isOnEdge && Mathf.Abs(playerTransform.position.y - targetY) <= yDistanceThreshold)
+            if (_climbingManager.playerCollideEdge.isOnEdge &&
+                Mathf.Abs(playerTransform.position.y - targetY) <= yDistanceThreshold)
             {
                 isAdjustToEdge = true;
             }
@@ -73,19 +85,20 @@ public class Edge : MonoBehaviour, IClimbable
         _climbingManager.SetVariableWhenAttachOnClimbable();
     }
 
-    
 
-    private void ReplacePlayer(ClimbingManager climbingManager, Transform playerTransform, float targetY, float replaceSpeed)
+    private void ReplacePlayer(ClimbingManager climbingManager, Transform playerTransform, float targetY,
+        float replaceSpeed)
     {
         climbingManager.playerMovement.Move(playerTransform.position.y < targetY
             ? new Vector3(0, replaceSpeed, 0)
             : new Vector3(0, -replaceSpeed, 0));
 
-        if (this._climbingManager.playerCollideEdge.isOnEdge) return;
-        Vector3 directionToEdge = (this._climbingManager.playerCollideEdge.transform.position - transform.position).normalized;
+        if (_climbingManager.playerCollideEdge.isOnEdge) return;
+        Vector3 directionToEdge = (_climbingManager.playerCollideEdge.transform.position - transform.position)
+            .normalized;
         float dotProduct = Vector3.Dot(transform.forward, directionToEdge);
 
-        if (dotProduct > 0) 
+        if (dotProduct > 0)
         {
             climbingManager.playerMovement.Move(playerTransform.forward * replaceSpeed);
         }
@@ -97,7 +110,8 @@ public class Edge : MonoBehaviour, IClimbable
 
     public void OnClimb(Vector2 inputDirection)
     {
-        _climbingManager.playerAnimationController.Animator.SetInteger(_climbingManager.playerAnimationController.animeIDClimbingEdgeAxisX, (int)inputDirection.x);
+        _climbingManager.playerAnimationController.Animator.SetInteger(
+            _climbingManager.playerAnimationController.animeIDClimbingEdgeAxisX, (int)inputDirection.x);
         switch (inputDirection.x)
         {
             case > 0:
@@ -112,11 +126,17 @@ public class Edge : MonoBehaviour, IClimbable
     private void MoveLeft()
     {
         Vector2 playerPos2D = new Vector2(_climbingManager.transform.position.x, _climbingManager.transform.position.z);
-        Vector2 leftPoint2D = new Vector2(leftPoint.position.x,leftPoint.position.z);
+        Vector2 leftPoint2D = new Vector2(leftPoint.position.x, leftPoint.position.z);
 
         if (Vector2.Distance(playerPos2D, leftPoint2D) > OffsetPlayerCornerDist)
         {
-            _climbingManager.playerMovement.Move(transform.right * MoveSpeed);
+            _climbingManager.playerMovement.Move(-_climbingManager.transform.right * MoveSpeed);
+        }
+        else
+        {
+            if (coroutineRunning) return;
+            StartCoroutine(SideMovementCoroutine(false));
+            coroutineRunning = true;
         }
     }
 
@@ -127,30 +147,71 @@ public class Edge : MonoBehaviour, IClimbable
 
         if (Vector2.Distance(playerPos2D, rightPoint2D) > OffsetPlayerCornerDist)
         {
-            _climbingManager.playerMovement.Move(-transform.right * MoveSpeed);
+            _climbingManager.playerMovement.Move(_climbingManager.transform.right * MoveSpeed);
         }
+        else
+        {
+            if (coroutineRunning) return;
+            StartCoroutine(SideMovementCoroutine(true));
+            coroutineRunning = true;
+
+        }
+    }
+
+    private IEnumerator SideMovementCoroutine(bool moveRight)
+    {
+        StartCoroutine(moveRight ? rightEdge.LookAtEdgeCoroutine() : leftEdge.LookAtEdgeCoroutine());
+
+        float deltaTime = 0f;
+        while (deltaTime < .5f)
+        {
+            yield return null;
+            deltaTime += Time.deltaTime;
+            if (moveRight)
+            {
+                _climbingManager.playerMovement.Move(_climbingManager.transform.right * MoveSpeed);
+            }
+            else
+            {
+                 _climbingManager.playerMovement.Move(-_climbingManager.transform.right * MoveSpeed);
+            }
+            _climbingManager.IsClimbing = false;
+        }
+
+        if (moveRight)
+        {
+           rightEdge.StartClimbingToNextEdge();
+        }
+        else
+        {
+            leftEdge.StartClimbingToNextEdge();
+        }
+        
+        coroutineRunning = false;
     }
 
     public bool StopClimbingCondition(StarterAssetsInputs input)
     {
-
         if (Mathf.Approximately(input.move.y, 1) && Input.GetKeyDown(KeyCode.Space))
         {
             _endOnGoToGround = false;
-            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDEdgeToTop);
+            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController
+                .animeIDEdgeToTop);
             return true;
         }
 
         if (Mathf.Approximately(input.move.y, -1) && Input.GetKeyDown(KeyCode.Space))
         {
             _endOnGoToGround = true;
-            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDEdgeToGround);
+            _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController
+                .animeIDEdgeToGround);
             return true;
         }
 
         if (!Input.GetKeyDown(KeyCode.Space)) return false;
         _endOnGoToGround = false;
-        _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDEdgeToTop);
+        _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController
+            .animeIDEdgeToTop);
         return true;
     }
 
@@ -168,11 +229,12 @@ public class Edge : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopCoroutine()
     {
-        while (_climbingManager.footPosition.position.y  < transform.position.y)
+        while (_climbingManager.footPosition.position.y < transform.position.y)
         {
             _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
             yield return null;
         }
+
         _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
         _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 4);
         _climbingManager.enableBasicMovement = true;
