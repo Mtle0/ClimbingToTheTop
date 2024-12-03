@@ -140,8 +140,13 @@ public class Ladder : MonoBehaviour, IClimbable
             _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 1.5f);
             yield return null;
         }
-        _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
-        _climbingManager.playerMovement.Move(_climbingManager.transform.forward * 4);
+        float deltaTime = 0f;
+        while (deltaTime < .3f)
+        {
+            deltaTime += Time.deltaTime;
+            yield return null;
+            _climbingManager.playerMovement.Move(_climbingManager.transform.forward * MoveSpeed);
+        }
         _climbingManager.enableBasicMovement = true;
     }
 
