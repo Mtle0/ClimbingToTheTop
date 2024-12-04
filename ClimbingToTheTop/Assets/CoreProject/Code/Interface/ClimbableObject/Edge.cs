@@ -15,6 +15,7 @@ public class Edge : MonoBehaviour, IClimbable
     public Edge leftEdge;
     public Edge rightEdge;
     private bool coroutineRunning = false;
+    private bool switchSide = false;
 
     private void Start()
     {
@@ -37,6 +38,7 @@ public class Edge : MonoBehaviour, IClimbable
         if (_climbingManager.playerMovement.grounded || !AvailableToAttach) return;
         _climbingManager.CurrentClimbable = this;
         _climbingManager.enableBasicMovement = false;
+        switchSide = true;
         StartCoroutine(AdjustToEdgeCoroutine());
         StartCoroutine(LookAtEdgeCoroutine());
     }
@@ -71,18 +73,36 @@ public class Edge : MonoBehaviour, IClimbable
         bool isAdjustToEdge = false;
         while (!isAdjustToEdge)
         {
-            ReplacePlayer(_climbingManager, playerTransform, targetY, replaceSpeed);
-
-            if (_climbingManager.playerCollideEdge.isOnEdge &&
-                Mathf.Abs(playerTransform.position.y - targetY) <= yDistanceThreshold)
+            if (switchSide)
             {
-                isAdjustToEdge = true;
+                ReplacePlayerWithoutYAxe(_climbingManager, playerTransform, replaceSpeed);
             }
+            else
+            {
+                ReplacePlayer(_climbingManager, playerTransform, targetY, replaceSpeed);
+            }
+
+            if (switchSide)
+            {
+                if (_climbingManager.playerCollideEdge.isOnEdge)
+                {
+                    isAdjustToEdge = true;
+                }
+            }
+            else
+            {
+                if (_climbingManager.playerCollideEdge.isOnEdge &&
+                    Mathf.Abs(playerTransform.position.y - targetY) <= yDistanceThreshold)
+                {
+                    isAdjustToEdge = true;
+                }
+            }
+            
 
             yield return null;
         }
 
-        _climbingManager.SetVariableWhenAttachOnClimbable();
+        _climbingManager.SetVariableWhenAttachOnClimbable(switchSide);
     }
 
 
@@ -93,6 +113,24 @@ public class Edge : MonoBehaviour, IClimbable
             ? new Vector3(0, replaceSpeed, 0)
             : new Vector3(0, -replaceSpeed, 0));
 
+        if (_climbingManager.playerCollideEdge.isOnEdge) return;
+        Vector3 directionToEdge = (_climbingManager.playerCollideEdge.transform.position - transform.position)
+            .normalized;
+        float dotProduct = Vector3.Dot(transform.forward, directionToEdge);
+
+        if (dotProduct > 0)
+        {
+            climbingManager.playerMovement.Move(playerTransform.forward * replaceSpeed);
+        }
+        else
+        {
+            climbingManager.playerMovement.Move(-playerTransform.forward * replaceSpeed);
+        }
+    }
+
+    private void ReplacePlayerWithoutYAxe(ClimbingManager climbingManager, Transform playerTransform,
+        float replaceSpeed)
+    {
         if (_climbingManager.playerCollideEdge.isOnEdge) return;
         Vector3 directionToEdge = (_climbingManager.playerCollideEdge.transform.position - transform.position)
             .normalized;
@@ -154,7 +192,6 @@ public class Edge : MonoBehaviour, IClimbable
             if (coroutineRunning) return;
             StartCoroutine(SideMovementCoroutine(true));
             coroutineRunning = true;
-
         }
     }
 
@@ -173,20 +210,21 @@ public class Edge : MonoBehaviour, IClimbable
             }
             else
             {
-                 _climbingManager.playerMovement.Move(-_climbingManager.transform.right * MoveSpeed);
+                _climbingManager.playerMovement.Move(-_climbingManager.transform.right * MoveSpeed);
             }
+
             _climbingManager.IsClimbing = false;
         }
 
         if (moveRight)
         {
-           rightEdge.StartClimbingToNextEdge();
+            rightEdge.StartClimbingToNextEdge();
         }
         else
         {
             leftEdge.StartClimbingToNextEdge();
         }
-        
+
         coroutineRunning = false;
     }
 
@@ -234,7 +272,7 @@ public class Edge : MonoBehaviour, IClimbable
             _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
             yield return null;
         }
-        
+
         float deltaTime = 0f;
         while (deltaTime < .3f)
         {
@@ -242,6 +280,7 @@ public class Edge : MonoBehaviour, IClimbable
             yield return null;
             _climbingManager.playerMovement.Move(_climbingManager.transform.forward * MoveSpeed);
         }
+
         _climbingManager.enableBasicMovement = true;
     }
 

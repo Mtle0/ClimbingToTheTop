@@ -5535,6 +5535,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdf1e8d4d4e6c004895e36a50ebd10f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leftHandIK: {fileID: 996520784}
+  rightHandIK: {fileID: 1312725657}
+  rightFootIK: {fileID: 1032880838}
+  leftFootIK: {fileID: 1126251151}
 --- !u!114 &6982812146692848399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5542,7 +5546,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4416926082442558408}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
   m_Name: 
@@ -5558,7 +5562,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4416926082442558408}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2d8418b0b9634b1892b0268dd9c2743, type: 3}
   m_Name: 

@@ -13,7 +13,7 @@ public class ClimbingManager : MonoBehaviour
             _isClimbing = value;
             if (value)
             {
-                HandPlacementManager.StartPlaceHands(CurrentClimbable);
+                handPlacementManager.StartPlaceHands(CurrentClimbable);
             }
         }
     }
@@ -82,15 +82,23 @@ public class ClimbingManager : MonoBehaviour
     public void StopClimbing()
     {
         CurrentClimbable.EndClimb();
-        HandPlacementManager.StopPlaceHands(CurrentClimbable);
+        handPlacementManager.StopPlaceHands(CurrentClimbable);
         _isClimbing = false;
         stopClimbingCondition = false;
         LastClimbable = CurrentClimbable;
         CurrentClimbable = null;
     }
 
-    public void SetVariableWhenAttachOnClimbable()
+    public void SetVariableWhenAttachOnClimbable(bool switchSide)
     {
-        _isClimbing = true;
+        if (switchSide)
+        {
+            _isClimbing = true;
+        }
+        else
+        {
+            IsClimbing = true;
+        }
+        
     }
 }

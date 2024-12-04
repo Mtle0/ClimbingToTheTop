@@ -55,7 +55,7 @@ public class Ladder : MonoBehaviour, IClimbable
         }
         _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController.animeIDClimbingLadder);
 
-        _climbingManager.SetVariableWhenAttachOnClimbable();
+        _climbingManager.SetVariableWhenAttachOnClimbable(false);
     }
 
     private IEnumerator LookAtLadderCoroutine()
