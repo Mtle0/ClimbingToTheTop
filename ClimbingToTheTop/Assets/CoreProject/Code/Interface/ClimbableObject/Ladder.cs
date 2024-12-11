@@ -30,11 +30,11 @@ public class Ladder : MonoBehaviour, IClimbable
         if (hit.collider != GetComponent<Collider>()) return;
         _climbingManager.CurrentClimbable = this;
         _climbingManager.enableBasicMovement = false;
-        StartCoroutine(GoFrontToLadderCoroutine());
-        StartCoroutine(LookAtLadderCoroutine());
+        StartCoroutine(AdjustToClimbable());
+        StartCoroutine(LookAtClimbable());
     }
 
-    private IEnumerator GoFrontToLadderCoroutine()
+    public IEnumerator AdjustToClimbable()
     {
         Transform playerTransform = _climbingManager.centerOfPlayer;
         Vector3 targetPosition = new Vector3(transform.position.x, playerTransform.position.y, transform.position.z) + transform.forward * 0.5f;
@@ -58,7 +58,7 @@ public class Ladder : MonoBehaviour, IClimbable
         _climbingManager.SetVariableWhenAttachOnClimbable(false);
     }
 
-    private IEnumerator LookAtLadderCoroutine()
+    public IEnumerator LookAtClimbable()
     {
         Transform playerTransform = _climbingManager.transform;
         Vector3 playerTransformForwardStart = playerTransform.forward;

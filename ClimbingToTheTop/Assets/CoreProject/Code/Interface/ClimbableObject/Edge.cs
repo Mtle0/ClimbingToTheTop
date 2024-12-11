@@ -9,13 +9,13 @@ public class Edge : MonoBehaviour, IClimbable
     private const float MoveSpeed = 2f;
     private const float OffsetPlayerCornerDist = 0.5f;
     private ClimbingManager _climbingManager;
-    private bool _endOnGoToGround = false;
+    private bool _endOnGoToGround;
     public Transform leftPoint;
     public Transform rightPoint;
     public Edge leftEdge;
     public Edge rightEdge;
-    private bool coroutineRunning = false;
-    private bool switchSide = false;
+    private bool _coroutineRunning;
+    private bool _switchSide;
 
     private void Start()
     {
@@ -29,8 +29,8 @@ public class Edge : MonoBehaviour, IClimbable
         _climbingManager.enableBasicMovement = false;
         _climbingManager.playerAnimationController.Animator.SetTrigger(_climbingManager.playerAnimationController
             .animeIDClimbingGroundToEdge);
-        StartCoroutine(AdjustToEdgeCoroutine());
-        StartCoroutine(LookAtEdgeCoroutine());
+        StartCoroutine(AdjustToClimbable());
+        StartCoroutine(LookAtClimbable());
     }
 
     private void StartClimbingToNextEdge()
@@ -38,12 +38,12 @@ public class Edge : MonoBehaviour, IClimbable
         if (_climbingManager.playerMovement.grounded || !AvailableToAttach) return;
         _climbingManager.CurrentClimbable = this;
         _climbingManager.enableBasicMovement = false;
-        switchSide = true;
-        StartCoroutine(AdjustToEdgeCoroutine());
-        StartCoroutine(LookAtEdgeCoroutine());
+        _switchSide = true;
+        StartCoroutine(AdjustToClimbable());
+        StartCoroutine(LookAtClimbable());
     }
 
-    private IEnumerator LookAtEdgeCoroutine()
+    public IEnumerator LookAtClimbable()
     {
         Transform playerTransform = _climbingManager.transform;
         Vector3 playerTransformForwardStart = playerTransform.forward;
@@ -64,7 +64,7 @@ public class Edge : MonoBehaviour, IClimbable
         }
     }
 
-    private IEnumerator AdjustToEdgeCoroutine()
+    public IEnumerator AdjustToClimbable()
     {
         Transform playerTransform = _climbingManager.neckPosition;
         const float replaceSpeed = 3f;
@@ -73,7 +73,7 @@ public class Edge : MonoBehaviour, IClimbable
         bool isAdjustToEdge = false;
         while (!isAdjustToEdge)
         {
-            if (switchSide)
+            if (_switchSide)
             {
                 ReplacePlayerWithoutYAxe(_climbingManager, playerTransform, replaceSpeed);
             }
@@ -82,7 +82,7 @@ public class Edge : MonoBehaviour, IClimbable
                 ReplacePlayer(_climbingManager, playerTransform, targetY, replaceSpeed);
             }
 
-            if (switchSide)
+            if (_switchSide)
             {
                 if (_climbingManager.playerCollideEdge.isOnEdge)
                 {
@@ -97,12 +97,11 @@ public class Edge : MonoBehaviour, IClimbable
                     isAdjustToEdge = true;
                 }
             }
-            
 
             yield return null;
         }
 
-        _climbingManager.SetVariableWhenAttachOnClimbable(switchSide);
+        _climbingManager.SetVariableWhenAttachOnClimbable(_switchSide);
     }
 
 
@@ -171,10 +170,11 @@ public class Edge : MonoBehaviour, IClimbable
             _climbingManager.playerMovement.Move(-_climbingManager.transform.right * MoveSpeed);
         }
         else
-        {
-            if (coroutineRunning) return;
+        {   
+            if (!leftEdge) return;
+            if (_coroutineRunning) return;
             StartCoroutine(SideMovementCoroutine(false));
-            coroutineRunning = true;
+            _coroutineRunning = true;
         }
     }
 
@@ -189,15 +189,16 @@ public class Edge : MonoBehaviour, IClimbable
         }
         else
         {
-            if (coroutineRunning) return;
+            if (!rightEdge) return;
+            if (_coroutineRunning) return;
             StartCoroutine(SideMovementCoroutine(true));
-            coroutineRunning = true;
+            _coroutineRunning = true;
         }
     }
 
     private IEnumerator SideMovementCoroutine(bool moveRight)
     {
-        StartCoroutine(moveRight ? rightEdge.LookAtEdgeCoroutine() : leftEdge.LookAtEdgeCoroutine());
+        StartCoroutine(moveRight ? rightEdge.LookAtClimbable() : leftEdge.LookAtClimbable());
 
         float deltaTime = 0f;
         while (deltaTime < .5f)
@@ -225,7 +226,7 @@ public class Edge : MonoBehaviour, IClimbable
             leftEdge.StartClimbingToNextEdge();
         }
 
-        coroutineRunning = false;
+        _coroutineRunning = false;
     }
 
     public bool StopClimbingCondition(StarterAssetsInputs input)
@@ -267,15 +268,18 @@ public class Edge : MonoBehaviour, IClimbable
 
     private IEnumerator GoToTopCoroutine()
     {
+        _climbingManager.handPlacementManager.SetLastPosHand();
         while (_climbingManager.footPosition.position.y < transform.position.y)
         {
             _climbingManager.playerMovement.Move(Vector3.up * 1.5f);
+            _climbingManager.handPlacementManager.LockHands();
             yield return null;
         }
 
         float deltaTime = 0f;
         while (deltaTime < .3f)
         {
+            _climbingManager.handPlacementManager.DecreaseWeightWithLerp(0f);
             deltaTime += Time.deltaTime;
             yield return null;
             _climbingManager.playerMovement.Move(_climbingManager.transform.forward * MoveSpeed);

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CollideTestWithEdge : MonoBehaviour
 {
-    [HideInInspector] public bool isOnEdge = false;
+    [HideInInspector] public bool isOnEdge;
 
 
     private void OnTriggerEnter(Collider other)
