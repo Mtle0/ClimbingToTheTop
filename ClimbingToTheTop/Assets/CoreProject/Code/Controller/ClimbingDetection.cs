@@ -36,8 +36,7 @@ public class ClimbingDetection : MonoBehaviour
             Ray ray = new Ray(centerOfPlayer.position, (hitCollider.transform.position - centerOfPlayer.position).normalized);
             if (!Physics.Raycast(ray, out RaycastHit hit, gripDistance)) continue;
             if (hit.collider != hitCollider) continue;
-            IClimbable climbable = hitCollider.GetComponent<IClimbable>();
-            if (climbable != null)
+            if (hitCollider.TryGetComponent<IClimbable>(out var climbable))
             {
                 _climbingManager.StartClimbingTest(climbable);
             }

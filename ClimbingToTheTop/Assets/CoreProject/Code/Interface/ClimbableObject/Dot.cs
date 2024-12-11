@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Dot : MonoBehaviour, IClimbable
 {
-    public bool AvailableToAttach { get; set; }
+    public bool AvailableToAttach { get; set; } = true;
 
     private ClimbingManager _climbingManager;
     private bool _goToGround;
